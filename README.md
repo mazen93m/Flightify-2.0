@@ -1,2 +1,2 @@
 # Flightify
-DAEN 690: Data Analytics Engineering Capstone Project
+There is a continuing challenge to accurately predict VFR flight behavior which is needed for the FAA to allocate resources and calculate safety risk in the air and on the ground. Team Flightify 2.0 intends to expand upon the work of the Summer 2021 Team Flightify study. The first goal is to expand the number of airports from 8 to 500 to include major airports inside the National Airspace System (NAS). The second goal is to improve the accuracy of the VFR flight predictions. The third goal is to incorporate predictive findings into the ArcGIS (GLARE) platform.
