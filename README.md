@@ -9,9 +9,9 @@ Aircraft using VFR usually are not required to file a flight plan and are not au
 # execution example:
 ```
 ## Credits
-George Mason Data Analytics Engineering Program: DAEN 690
-Team Flightify 2.0: Dr. Charles Howard, Sabitha Pongadan, Alec Gray, Nida Sharief, Mazen Mohamed, Kimberly Cawi, Vasanthi Pulusu, Bharat Kumar Challakonda
-Team Flightify: Deanna Snellings, Walter Benitez, Brittany Burwell, Jason Chern
+George Mason Data Analytics Engineering Program: DAEN 690\
+Team Flightify 2.0: Dr. Charles Howard, Sabitha Pongadan, Alec Gray, Nida Sharief, Mazen Mohamed, Kimberly Cawi, Vasanthi Pulusu, Bharat Kumar Challakonda\
+Team Flightify: Deanna Snellings, Walter Benitez, Brittany Burwell, Jason Chern\
 
 ## License
 
