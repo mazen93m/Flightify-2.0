@@ -20,9 +20,6 @@ Created on Thu Mar  3 15:46:44 2022
 
 
 import pandas as pd
-#import seaborn as sns
-import matplotlib.pyplot as plt
-
 
 # Setting any output to display all columns and rows 
 pd.set_option('display.max_columns', None)
@@ -44,7 +41,7 @@ def read_csv(csvfile):
     
     return pd.read_csv(csvfile, skiprows=6, header=0)
 
-ops = read_csv('Juneau.csv')
+ops = read_csv('juneau.csv')
 
 # Drop last column, which is an empty column
 ops.drop(ops.columns[-1], axis=1, inplace=True)
@@ -156,13 +153,13 @@ ops[numeric_columns] = ops[numeric_columns].astype('int64')
 ops['IFR'] = ops['IFR Total'] + ops['IFR Overflight Total']
 
 # Creating variable for total VFR traffic, which is target variable
-ops['VFR'] = ops['VFR Total'] + ops['VFR Overflight Total']
+ops['VFR'] = ops['VFR Total'] + ops['VFR Overflight Total'] + ops['Local Total']
 
-locallyDocked()
+#locallyDocked()
 
 
-grp1 = ops.groupby('Local Ratio',as_index=False)
-grp1_count = grp1[['Local Civil','Local Military','Local Total']].count()
+#grp1 = ops.groupby('Local Ratio',as_index=False)
+#grp1_count = grp1[['Local Civil','Local Military','Local Total']].count()
 #print(grp1_count)
 
 # Check Dataframe
@@ -171,4 +168,3 @@ print(ops.dtypes)
 
 #print(ops.info())
 #print(ops.describe())
-
