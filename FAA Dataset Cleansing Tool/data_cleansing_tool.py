@@ -250,4 +250,4 @@ ops_weather = ops_weather.reindex(columns=column_names)
 
 #print(ops_weather.head())
 
-ops_weather.to_csv('data.csv')
+ops_weather.to_csv('data.csv',index=False)
