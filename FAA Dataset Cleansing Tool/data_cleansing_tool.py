@@ -106,26 +106,30 @@ def removeCommas():
                 if len(ops[col].loc[i]) > 3:
                     ops.loc[i, col] = ops[col].loc[i].replace(',','')
 
-def locallyDocked():
-    '''
-    This function calculates daily local presence (Local Civil/ Local Total)
-    NOTE: This function is required to take care of division by zero error
-
-    Returns
-    -------
-    None.
-
-    '''
-    
-    # Calculating presence of aircraft that are locally docked
-    # Looping over Local Total column
-    for i in range(1, ops['Local Total'].shape[0]+1):
-        # Catching any 0/0 cases by determing when Local Total is 0 and setting
-        # our new column Local Ratio equal to zero.
-       if (ops.loc[i, 'Local Total'] == 0):
-            ops.loc[i, 'Local Ratio'] = 0
-       else:
-           ops.loc[i, 'Local Ratio'] = round(ops.loc[i, 'Local Civil']/ops.loc[i, 'Local Total'],3)
+# =============================================================================
+# =============================================================================
+# # def locallyDocked():
+# #     '''
+# #     This function calculates daily local presence (Local Civil/ Local Total)
+# #     NOTE: This function is required to take care of division by zero error
+# # 
+# #     Returns
+# #     -------
+# #     None.
+# # 
+# #     '''
+# #     
+# #     # Calculating presence of aircraft that are locally docked
+# #     # Looping over Local Total column
+# #     for i in range(1, ops['Local Total'].shape[0]+1):
+# #         # Catching any 0/0 cases by determing when Local Total is 0 and setting
+# #         # our new column Local Ratio equal to zero.
+# #        if (ops.loc[i, 'Local Total'] == 0):
+# #             ops.loc[i, 'Local Ratio'] = 0
+# #        else:
+# #            ops.loc[i, 'Local Ratio'] = round(ops.loc[i, 'Local Civil']/ops.loc[i, 'Local Total'],3)
+# =============================================================================
+# =============================================================================
 
 def addLocID():
     '''
@@ -239,8 +243,8 @@ column_names = ['Date','LOC','STATION','NAME','LATITUDE','LONGITUDE','IFR Air Ca
        'VFR Air Taxi', 'VFR General Aviation', 'VFR Military', 'VFR Total',
        'VFR Overflight Air Carrier', 'VFR Overflight Air Taxi',
        'VFR Overflight General Aviation', 'VFR Overflight Military',
-       'VFR Overflight Total', 'Local Civil', 'Local Military', 'Local Total','IFR','VFR',
-       'Total Airport Operations', 'Total Tower Operations','AWND', 'PRCP', 'SNOW', 'SNWD', 'TAVG', 'TMAX',
+       'VFR Overflight Total', 'Local Civil', 'Local Military', 'Local Total', 'Total Airport Operations', 
+       'Total Tower Operations','IFR','VFR','AWND', 'PRCP', 'SNOW', 'SNWD', 'TAVG', 'TMAX',
        'TMIN','isAHoliday','Holiday']
 
 tagHolidays()
