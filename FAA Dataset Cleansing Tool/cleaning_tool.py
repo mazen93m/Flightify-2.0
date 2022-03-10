@@ -247,9 +247,8 @@ tagHolidays()
 
 # set merged dataset columns to the new order
 ops_weather = ops_weather.reindex(columns=column_names)
-data_FAI = ops_weather
 
 # save data to a csv file.
 #data_dict = {'FAI':ops_weather.to_csv('fai_data.csv',index=False)}
 
-data_dict = {'FAI':data_FAI}
+data_dict = {'FAI':ops_weather}
