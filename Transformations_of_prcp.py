@@ -340,3 +340,38 @@ fig.set_figwidth(10)
   
 print(f"Lambda value used for Transformation: {fitted_lambda}")
 
+#---------------------------------------------------------------------------
+
+# Transform PRCP Reciprical.
+
+FAI_Noah_df = pd.read_csv(
+        'FAI_USW00026411_Noah_01012017_12312021_all temps_order2895112.csv')
+
+FAI_Noah_df['PRCP'] = 1/(FAI_Noah_df['PRCP'] + .001)
+
+FAI_Noah_df['PRCP'].plot.hist(grid=True, bins=20, rwidth=0.9,
+                   color='#607c8e')
+plt.title('Precipitation')
+plt.xlabel('Inches')
+plt.ylabel('Counts')
+plt.grid(axis='y', alpha=0.75)
+
+
+#---------------------------------------------------------------------------
+
+# Transform PRCP sqrt(1/PRCP).
+
+FAI_Noah_df = pd.read_csv(
+        'FAI_USW00026411_Noah_01012017_12312021_all temps_order2895112.csv')
+
+FAI_Noah_df['PRCP'] = (1/(FAI_Noah_df['PRCP'] + .001))**(1./2)
+
+FAI_Noah_df['PRCP'].plot.hist(grid=True, bins=20, rwidth=0.9,
+                   color='#607c8e')
+plt.title('Precipitation')
+plt.xlabel('Inches')
+plt.ylabel('Counts')
+plt.grid(axis='y', alpha=0.75)
+
+#-----------------------------------------------------------------
+
