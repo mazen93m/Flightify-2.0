@@ -16,8 +16,8 @@ The tool utilizes a host of user defined functions that work together to prepare
 5.	Once the dataframes are merged, the tool adds the Location ID (`LOC`) to each dataset. It achieves this by matching the 3rd element of the
     `airports_dict` at the appropriate index to the `NAME` column of each dataset and grabbing the key element as the value for `LOC`.
 6.  The tool accounts for any null values that may be present in any of the individual datasets' columns (typically one or more weather variables.
-7.	Finally, the tool subsets the applicable columns for each cleaned dataframe and saves each dataframe as a value with the `LOC` as the key to a
-    python dictionary (`datasets`).
+7.	Finally, the tool subsets the applicable columns for each cleaned dataframe and saves each dataframe as a value to a
+    python dictionary (`datasets`) with the appropiate `LOC` as the key .
 
 
 ## How to use it
