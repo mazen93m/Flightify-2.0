@@ -25,6 +25,7 @@ The `datasets` dictionary from `dataCleaner.py` can be used in a python file by 
 
 ```python
 import dataCleaner as dc
+import pandas as pd
 data = dc.datasets
 data['ANC'].head()
 ```
