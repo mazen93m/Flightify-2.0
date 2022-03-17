@@ -8,7 +8,7 @@ The tool utilizes a host of user defined functions that work together to prepare
     - Python module that houses a dictionary (`airports_dict`), which includes the airport code as the key, a list of csv file names
       (one representing the FAA dataset and the other representing the NOAA dataset), and the airport’s name as displayed in the ‘NAME’ column
       of the NOAA weather dataset. 
-    - Module includes the `airports_dict` dictionary that lists and organizes the look up data for each airport.
+    - Module includes the `airports_dict` dictionary that lists and organizes the lookup data for each airport.
 2.	`dataCleaner.py` unpacks the airports’ FAA and NOAA datasets by extracting the pandas dataframes and saves each airport’s FAA and NOAA
     datasets as list elements in a list of lists (dataFrameLst). 
 3.	The tool then performs several data cleaning steps including data manipulation, data type conversion, variable creation etc. 
