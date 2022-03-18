@@ -628,7 +628,6 @@ def findWeatherBlanks():
                 #cols_w_blanks += [dset[[col]]]
                 cols_w_blanks += [col]
         if target_key != '':
-            #blanks[target_key] = [cols_w_blanks[i] for i in range(len(cols_w_blanks))]
             blanks[target_key] = [cols_w_blanks[i] for i in range(len(cols_w_blanks))]
 
     return blanks
