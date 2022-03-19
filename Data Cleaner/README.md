@@ -21,7 +21,7 @@ The tool utilizes a host of user defined functions that work together to prepare
 
 
 ## How to use it
-The `datasets` dictionary from `dataCleaner.py` can be used in a python file by importing the module and  asigning the `airports_dict` from the `airports.py` module to a local variable.
+The `datasets` dictionary from `dataCleaner.py` can be used in a python file by importing the module and  asigning the `datasets` dictionary to a local variable.
 
 ```python
 import dataCleaner as dc
