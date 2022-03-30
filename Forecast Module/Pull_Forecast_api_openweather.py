@@ -53,6 +53,18 @@ Created on Tue Mar 15 19:23:36 2022
 import pandas as pd
 import requests
 import json
+import pickle
+
+# =============================================================================
+# #Read in model dictionary from disk
+# 
+# #****replace file.pkl with pickle file of model dict on disk
+# file_to_read = open("file.pkl", "rb")
+# 
+# Model_dict = pickle.load(file_to_read)
+# 
+# =============================================================================
+
 
 #assign API call before adding lat lon
 #Important: Insert your API key in place of {api key}, drop braces, no spaces
