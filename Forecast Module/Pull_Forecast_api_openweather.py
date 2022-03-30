@@ -58,10 +58,10 @@ import pickle
 # =============================================================================
 # #Read in model dictionary from disk
 # 
-# #****replace file.pkl with pickle file of model dict on disk
-# file_to_read = open("file.pkl", "rb")
+
+file_to_read = open("model_dict.pkl", "rb")
 # 
-# Model_dict = pickle.load(file_to_read)
+Model_dict = pickle.load(file_to_read)
 # 
 # =============================================================================
 
@@ -71,7 +71,7 @@ import pickle
 #Using units=imperial in api call means temp max is F, wind_speed is mph
 #rain and snow are returned as mm no matter what
 
-openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourly,alerts,minutely&appid=e1aba7bcfa12974803adcf2db2260958&units=imperial'
+openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourly,alerts,minutely&appid={API key}&units=imperial'
 
 
 #assign lat lon to a string variable
