@@ -20,7 +20,8 @@ datasets = pickle.load(file_to_read)
 gfk = datasets['GFK']
 
 print(gfk.head())
-
+```
+```
   Date  LOC      STATION                                      NAME  \
 0  2017-01-01  GFK  USW00014916  GRAND FORKS INTERNATIONAL AIRPORT, ND US   
 1  2017-01-02  GFK  USW00014916  GRAND FORKS INTERNATIONAL AIRPORT, ND US   
