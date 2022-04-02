@@ -4,7 +4,7 @@
 2. Run the following code
 3. Make sure the pickle package is installed
 
-``` 
+```python
 import pickle
 
 # Setting any output to display all columns and rows 
