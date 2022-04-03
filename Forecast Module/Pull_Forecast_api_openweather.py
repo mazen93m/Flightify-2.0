@@ -75,7 +75,7 @@ file_to_read.close()
 #Using units=imperial in api call means temp max is F, wind_speed is mph
 #rain and snow are returned as mm no matter what
 
-openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourly,alerts,minutely&appid={API key}&units=imperial'
+openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourly,alerts,minutely&appid={API Key}&units=imperial'
 
 #start a forecast dictionary
 forecast_dict = {}
@@ -638,13 +638,14 @@ combo_forecast_df = combo_forecast_df.rename(columns = {'index':'day_index'})
 #get current working directory    
 cwd = os.getcwd()
 #identify path as the current working directory
-path = cwd + "/combo_forecast.csv"
+path = cwd + "\\combo_forecast.csv"
 combo_forecast_df.to_csv(path)
 
     
 #--------------------------------------------
 
 #create DataFrame and write csv to disk for point shape file
+#do not have an older version of csv open on you computer or it won't write
 
 
 #start lists to create DataFrame with shape file information
@@ -701,12 +702,13 @@ shape_df = pd.DataFrame(shape_dict)
   
 
   
-#write the shape_df to a shape_df.csv   
+#write the shape_df to a shape_df.csv 
+#do not have an older version of csv open on you computer or it won't write  
    
 #get current working directory    
 cwd = os.getcwd()
 #identify path as the current working directory
-path = cwd + "/shape.csv"
+path = cwd + "\\shape.csv"
 shape_df.to_csv(path)
 
 
