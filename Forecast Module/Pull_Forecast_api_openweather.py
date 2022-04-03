@@ -54,6 +54,7 @@ import pandas as pd
 import requests
 import json
 import pickle
+import os
 
 # =============================================================================
 # #Read in model dictionary from disk
@@ -74,17 +75,22 @@ file_to_read.close()
 #Using units=imperial in api call means temp max is F, wind_speed is mph
 #rain and snow are returned as mm no matter what
 
-openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourly,alerts,minutely&appid={API KEY}&units=imperial'
+openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourly,alerts,minutely&appid=e1aba7bcfa12974803adcf2db2260958&units=imperial'
 
 #start a forecast dictionary
 forecast_dict = {}
 
+#start a combined forcast dataaframe to hold all forecast dataframes to
+combo_forecast_df = pd.DataFrame()
+#combo_forecast_df
 
 
 #Iterate over model_dict or choose an airport to build forecast_dict
 
 #for key in ['FAI']:
 for key in model_dict:
+    
+    print("Running airport " + key)
    
     #assign lat lon to a string variable
     #example: Fairbancks &lat=64.80309&lon=-147.87606 
@@ -106,7 +112,7 @@ for key in model_dict:
     
     
     
-    
+    #test api
     #the try catch tests json response values for the first response
     #under daily which is listed as 0
     
@@ -275,7 +281,6 @@ for key in model_dict:
     
     
     
-    
     # =============================================================================
     # #Convert our forecast unix dates to local date time using datetime package
     # #result is datetime.datetime type
@@ -298,7 +303,6 @@ for key in model_dict:
     
     
     
-    
     #Convert our forecast unix dates to local date time using pandas
     #result is class 'pandas._libs.tslibs.timestamps.Timestamp'
     
@@ -313,8 +317,6 @@ for key in model_dict:
     #print(type(Date[0]))
     
     forecast_df['Date'] = Date
-    
-    
     
     
     
@@ -336,9 +338,7 @@ for key in model_dict:
     
     type(forecast_df['SUNRISE'][0])
     
-    
-    
-    
+     
     
     #Convert sunset unix date time to Local date time
     
@@ -402,13 +402,10 @@ for key in model_dict:
     
     forecast_df['SNOW_SQRT'] = forecast_df['SNOW'] ** (1/2)
     
-    
-    
+     
     
     #--------------------------------------------------
-    
-    
-    
+      
     
     
     #Create a Holiday Column
@@ -425,12 +422,10 @@ for key in model_dict:
     type(holidays['Date'][0])
     
       
-      
-    
+         
     #----------------------------------
     
     
-
     
     #To recognize that two dates are the same, we need to get rid of the time
     #in the date
@@ -476,8 +471,7 @@ for key in model_dict:
     #forecast_df['Date']
     
     
-    
-    
+        
     isAHOLIDAY = [] 
     
     for i in range(len(forecast_df['Date'])):
@@ -495,9 +489,8 @@ for key in model_dict:
     forecast_df['isAHOLIDAY'] = isAHOLIDAY
     
 
-        
-    
-    #------------------------------------
+            
+#------------------------------------
     
     #Create IFR column in forecast_df uses average from data cleaner's datasets
     #which was brought in with the model_dict
@@ -510,8 +503,7 @@ for key in model_dict:
     forecast_df['IFR'] = IFR  
     
 #----------------------------------------
-    
-    
+       
     #Create a LOC column in forecast_df 
     
     LOCid = []
@@ -522,8 +514,7 @@ for key in model_dict:
     forecast_df['LOC'] = LOCid
     
     #forecast_df.columns
-    
-    
+     
 #--------------------------------------
 
     #Create LATITUDE column in forecast_df
@@ -534,8 +525,7 @@ for key in model_dict:
         LATITUDE.append(model_dict[key][1])
     
     forecast_df['LATITUDE'] = LATITUDE
-    
-    
+       
 #--------------------------------------
 
     #Create LONGITUDE column in forecast_df
@@ -546,17 +536,53 @@ for key in model_dict:
     
     forecast_df['LONGITUDE'] = LONGITUDE
      
-  #--------------------------------------  
+#-------------------------------------- 
+
+    possible_predictors = ['IFR', 'AWND', 'PRCP', 'PRCP_SQRT', 'SNOW', 'SNOW_SQRT',
+                           'TMIN', 'TMAX', 'isAHOLIDAY']
     
+    #create a column place holder for intercept and coefficeints
+    forecast_df['INTERCEPT'] = 'NaN'
+    for i in range(len(possible_predictors)):
+        forecast_df[possible_predictors[i] + '_coeff'] = 'NaN' 
+        
+    #create a column place holder for intercept and coefficeints standard errors
+    forecast_df['INTERCEPT_se'] = 'NaN'
+    for i in range(len(possible_predictors)):
+        forecast_df[possible_predictors[i] + '_coeff_se'] = 'NaN' 
+               
+    #create a column place holder for intercept and coefficeints p values
+    forecast_df['INTERCEPT_p'] = 'NaN'
+    for i in range(len(possible_predictors)):
+        forecast_df[possible_predictors[i] + '_p'] = 'NaN'
+        
+    #create a column place holder for test_root_MSE
+    forecast_df['test_root_MSE'] = 'NaN' 
     
+    #create a column place holder for R2
+    forecast_df['R2'] = 'NaN'    
+
+
+#--------------------------------------
+ 
+        
+        
+#--------------------------------------
+      
     #Forecast current plus next 7 days of VFR Traffic
          
     #Will need to check which model is used and build x_forecast with appropriate columns
     
+    #Forecast Prediction code for Model MLR1
     if model_dict[key][0] == 'MLR1':
         
-        #mirror columns used in model module
-        x_forecast = forecast_df[['IFR', 'AWND', 'PRCP_SQRT', 'SNOW', 'TMAX', 'isAHOLIDAY']]
+        #Calculate Future VFR flights
+        
+        #predictor_names = model_dict[key][6]
+        predictor_names = ['IFR', 'AWND', 'PRCP_SQRT', 'TMAX', 'isAHOLIDAY', 'SNOW_SQRT']
+        
+        #create x value DataFrame for predictions
+        x_forecast = forecast_df[predictor_names]
     
         #x_forecast = x_forecast.to_numpy()
         
@@ -564,15 +590,125 @@ for key in model_dict:
         linReg = model_dict[key][4]
         y_forecast = linReg.predict(x_forecast)
         
-        
         forecast_df['y_forecast'] = y_forecast
         
+        
+        #populate intercept and coefficients columns in forecast_df with model values
+        forecast_df['INTERCEPT'] = model_dict[key][5][0]
+        for i in range(len(predictor_names)):
+           forecast_df[predictor_names[i] + '_coeff'] = model_dict[key][5][1][i] 
+           
+# =============================================================================
+#         #populate intercept and coefficient standard error columns in forecast_df with model values   
+#         forecast_df['INTERCEPT_se'] = model_dict[key][9][0]
+#         for i in range(len(predictor_names)):
+#            forecast_df[predictor_names[i] + '_coeff_se'] = model_dict[key][9][1][i] 
+#            
+#         
+#         #populate intercept and coefficient p value columns in forecast_df with model values  
+#         forecast_df['INTERCEPT_p'] = model_dict[key][10][0]
+#         for i in range(len(predictor_names)):
+#            forecast_df[predictor_names[i] + '_p'] = model_dict[key][10][1][i] 
+#            
+# =============================================================================
+        
+        #create a column place holder for test_root_MSE
+        forecast_df['test_root_MSE'] = model_dict[key][7]
     
+        #create a column place holder for R2
+        forecast_df['R2'] = model_dict[key][8]
+        
     #--------------------------------------  
        
     forecast_dict[key] = [forecast_df]
     
     #-------------------------------------- 
     
+    #add the current airport forecast_df to the combined forecast DataFrame
+    combo_forecast_df = combo_forecast_df.append(forecast_df)
     
+#make index a column with header day_index
+combo_forecast_df.reset_index(inplace=True)
+#give the day_index column correct column name
+combo_forecast_df = combo_forecast_df.rename(columns = {'index':'day_index'})
+
+    
+#save csv for all combined airport forecast_df's
+ 
+#get current working directory    
+cwd = os.getcwd()
+#identify path as the current working directory
+path = cwd + "/combo_forecast.csv"
+combo_forecast_df.to_csv(path)
+
+    
+#--------------------------------------------
+
+#create DataFrame and write csv to disk for point shape file
+
+
+#start lists to create DataFrame with shape file information
+LOC_sh = []
+LATITUDE_sh = []
+LONGITUDE_sh = []
+VFR_0 = []
+VFR_1 = []
+VFR_2 = []
+VFR_3 = []
+VFR_4 = []
+VFR_5 = []
+VFR_6 = []
+VFR_7 = []
+
+for key in forecast_dict:
+    
+    LOC_sh.append(forecast_dict[key][0]["LOC"][0])
+    
+    LATITUDE_sh.append(forecast_dict[key][0]["LATITUDE"][0])
+     
+    LONGITUDE_sh.append(forecast_dict[key][0]["LONGITUDE"][0])
+     
+    VFR_0.append(forecast_dict[key][0]["y_forecast"][0])
+    
+    VFR_1.append(forecast_dict[key][0]["y_forecast"][1])
+    
+    VFR_2.append(forecast_dict[key][0]["y_forecast"][2])
+    
+    VFR_3.append(forecast_dict[key][0]["y_forecast"][3])
+    
+    VFR_4.append(forecast_dict[key][0]["y_forecast"][4])
+    
+    VFR_5.append(forecast_dict[key][0]["y_forecast"][5])
+    
+    VFR_6.append(forecast_dict[key][0]["y_forecast"][6])
+    
+    VFR_7.append(forecast_dict[key][0]["y_forecast"][7])
+    
+
+# create shape dictionary of column lists 
+shape_dict = {'LOC': LOC_sh, 'LATITUDE': LATITUDE_sh, 'LONGITUDE': LONGITUDE_sh,
+             "VFR " + str(forecast_dict[key][0]["Date"][0]) : VFR_0,
+             "VFR " + str(forecast_dict[key][0]["Date"][1]) : VFR_1,
+             "VFR " + str(forecast_dict[key][0]["Date"][2]) : VFR_2,
+             "VFR " + str(forecast_dict[key][0]["Date"][3]) : VFR_3,
+             "VFR " + str(forecast_dict[key][0]["Date"][4]) : VFR_4,
+             "VFR " + str(forecast_dict[key][0]["Date"][5]) : VFR_5,
+             "VFR " + str(forecast_dict[key][0]["Date"][6]) : VFR_6,
+             "VFR " + str(forecast_dict[key][0]["Date"][7]) : VFR_7 } 
+
+#create DataFrame from dictionary    
+shape_df = pd.DataFrame(shape_dict)
+  
+
+  
+#write the shape_df to a shape_df.csv   
+   
+#get current working directory    
+cwd = os.getcwd()
+#identify path as the current working directory
+path = cwd + "/shape.csv"
+shape_df.to_csv(path)
+
+
 #print(forecast_df.dtypes)    
+
