@@ -16,9 +16,12 @@ import pickle
 
 # This python script runs 3 GLM models on ACY, GFK, LGA, EWR, TEB, JFK, CVG
 # All the code is preset for these 7. The code will output 3 fitted models 
-# Along with 3 visuals for each fitted model
+# Along with 6 visuals for each fitted model
 # The 3 models that are fitted on these 7 are:
 # NegativeBinomial, GeneralizedPoission levels 1,2 and/or 3 (CVG)
+
+# For DVT, VNY, use: family=sm.families.Gamma(link=sm.families.links.log()) <-- line 67 (poisson_training), random seed 1
+# For PRC, use ONLY NegativeBinomial (comment out gp2model and gp1model at the bottom of the script)
 
 # set defult seaborn theme
 sns.set()
@@ -33,8 +36,6 @@ file_to_read = open("datasets.pkl", "rb")
 datasets = pickle.load(file_to_read)
 model_dict = dict()
 
-# For DVT, VNY, use: family=sm.families.Gamma(link=sm.families.links.log()) <-- line 66 (poisson_training), random seed 1
-# For PRC, use ONLY NegativeBinomial (comment out gp2model and gp1model)
 data = datasets['ACY']#.loc[730:1094]
 
 
