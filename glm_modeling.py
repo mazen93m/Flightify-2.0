@@ -120,7 +120,7 @@ def generalizedPoisson2():
 def visualizeModel(df, vis, predicted_counts):
  
     fig = plt.figure()
-    fig.set_size_inches(15,8)
+    fig.set_size_inches(25,10)
     fig.suptitle('{}: Predicted vs Actual VFR counts for {}'.format(vis,df.LOC[0]))
     predicted, = plt.plot(X_test.index, predicted_counts, 'go-', label='Predicted counts')
     actual, = plt.plot(X_test.index, actual_counts, 'ro-', alpha=.5, label='Actual counts')
@@ -131,7 +131,7 @@ def visualizeModel(df, vis, predicted_counts):
     
     plt.clf()
     fig = plt.figure()
-    fig.set_size_inches(15,8)
+    fig.set_size_inches(20,10)
     fig.suptitle('{}: Scatter plot of Actual versus Predicted counts for {}'.format(vis,df.LOC[0]))
     plt.scatter(x=predicted_counts, y=actual_counts, marker='.')
     plt.xlabel('Predicted counts')
