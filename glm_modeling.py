@@ -131,6 +131,7 @@ def visualizeModel(df, vis, predicted_counts):
     
     plt.clf()
     fig = plt.figure()
+    fig.set_size_inches(15,8)
     fig.suptitle('{}: Scatter plot of Actual versus Predicted counts for {}'.format(vis,df.LOC[0]))
     plt.scatter(x=predicted_counts, y=actual_counts, marker='.')
     plt.xlabel('Predicted counts')
