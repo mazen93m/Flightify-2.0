@@ -49,7 +49,7 @@ for i in range(len(data)):
 data.index = data.Date
 
 # Create training and testing data sets
-np.random.seed(7)
+np.random.seed(1)
 rand_selection = np.random.rand(len(data)) < .8
 data_train = data[rand_selection]
 data_test = data[~rand_selection]
