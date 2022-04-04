@@ -20,7 +20,7 @@ import pickle
 # The 3 models that are fitted on these 7 are:
 # NegativeBinomial, GeneralizedPoission levels 1,2 and/or 3 (CVG)
 
-# For DVT, VNY, use: family=sm.families.Gamma(link=sm.families.links.log()) <-- line 67 (poisson_training), random seed 1
+# For DVT, VNY, use: family=sm.families.Gamma(link=sm.families.links.log()) <-- line 68 (poisson_training), random seed 1
 # For PRC, use ONLY NegativeBinomial (comment out gp2model and gp1model at the bottom of the script)
 
 # set defult seaborn theme
@@ -34,6 +34,7 @@ pd.set_option('display.max_rows', None)
 
 file_to_read = open("datasets.pkl", "rb")
 datasets = pickle.load(file_to_read)
+file_to_read.close()
 model_dict = dict()
 
 data = datasets['ACY']#.loc[730:1094]
