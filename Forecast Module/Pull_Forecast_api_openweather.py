@@ -75,7 +75,7 @@ file_to_read.close()
 #Using units=imperial in api call means temp max is F, wind_speed is mph
 #rain and snow are returned as mm no matter what
 
-openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourly,alerts,minutely&appid={API Key}&units=imperial'
+openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourly,alerts,minutely&appid=e1aba7bcfa12974803adcf2db2260958&units=imperial'
 
 #start a forecast dictionary
 forecast_dict = {}
@@ -320,6 +320,18 @@ for key in model_dict:
     
     
     
+    #Create Columns for Month Day and Weekday
+    
+    Month = list(pd.DatetimeIndex(forecast_df['Date']).month)
+    Day = list(pd.DatetimeIndex(forecast_df['Date']).day)  
+    Week_Day = list(pd.DatetimeIndex(forecast_df['Date']).weekday)
+    
+    forecast_df['Month'] = Month
+    forecast_df['Day'] = Day
+    forecast_df['Week_Day'] = Week_Day
+    
+    
+    
     #Convert sunrise unix date time to Local date time
     
     #print(forecast_df.loc[:,'SUNRISE']) #in unix
@@ -503,6 +515,17 @@ for key in model_dict:
     forecast_df['IFR'] = IFR  
     
 #----------------------------------------
+        
+    #Create Intercept column of 1's in forecast_df
+    
+    Intercept = []
+    
+    for i in range(len(forecast_df['Date'])):
+        Intercept.append(1)
+        
+    forecast_df['Intercept'] = Intercept 
+    
+#----------------------------------------
        
     #Create a LOC column in forecast_df 
     
@@ -539,20 +562,20 @@ for key in model_dict:
 #-------------------------------------- 
 
     possible_predictors = ['IFR', 'AWND', 'PRCP', 'PRCP_SQRT', 'SNOW', 'SNOW_SQRT',
-                           'TMIN', 'TMAX', 'isAHOLIDAY']
+                           'TMIN', 'TMAX', 'isAHOLIDAY', 'Month', 'Day', 'Week_Day']
     
     #create a column place holder for intercept and coefficeints
-    forecast_df['INTERCEPT'] = 'NaN'
+    forecast_df['Intercept_coeff'] = 'NaN'
     for i in range(len(possible_predictors)):
         forecast_df[possible_predictors[i] + '_coeff'] = 'NaN' 
         
     #create a column place holder for intercept and coefficeints standard errors
-    forecast_df['INTERCEPT_se'] = 'NaN'
+    forecast_df['Intercept_coeff_se'] = 'NaN'
     for i in range(len(possible_predictors)):
         forecast_df[possible_predictors[i] + '_coeff_se'] = 'NaN' 
                
     #create a column place holder for intercept and coefficeints p values
-    forecast_df['INTERCEPT_p'] = 'NaN'
+    forecast_df['Intercept_p'] = 'NaN'
     for i in range(len(possible_predictors)):
         forecast_df[possible_predictors[i] + '_p'] = 'NaN'
         
@@ -560,9 +583,27 @@ for key in model_dict:
     forecast_df['test_root_MSE'] = 'NaN' 
     
     #create a column place holder for R2
-    forecast_df['R2'] = 'NaN'    
-
-
+    forecast_df['R2'] = 'NaN' 
+    
+    #create a column place holder for PSEUDO R-SQU
+    forecast_df['PSEUDO R-SQU'] = 'NaN'
+    
+    #create a column place holder for LOG-LIKELIHOOD
+    forecast_df['LOG-LIKELIHOOD'] = 'NaN'
+    
+    #create a column place holder for LL-NULL
+    forecast_df['LL-NULL'] = 'NaN'
+    
+    #create a column place holder for LLR p-value
+    forecast_df['LLR p-value'] = 'NaN'
+    
+    #create a confidence lower limit place holder for prediction
+    forecast_df['CONF_lower'] = 'NaN'
+    
+    
+    #create a confidence upper limit place holder for prediction
+    forecast_df['CONF_upper'] = 'NaN'
+    
 #--------------------------------------
  
         
@@ -578,8 +619,8 @@ for key in model_dict:
         
         #Calculate Future VFR flights
         
-        #predictor_names = model_dict[key][6]
-        predictor_names = ['IFR', 'AWND', 'PRCP_SQRT', 'TMAX', 'isAHOLIDAY', 'SNOW_SQRT']
+        predictor_names = model_dict[key][6]
+        #predictor_names = ['IFR', 'AWND', 'PRCP_SQRT', 'TMAX', 'isAHOLIDAY', 'SNOW_SQRT']
         
         #create x value DataFrame for predictions
         x_forecast = forecast_df[predictor_names]
@@ -598,7 +639,7 @@ for key in model_dict:
         for i in range(len(predictor_names)):
            forecast_df[predictor_names[i] + '_coeff'] = model_dict[key][5][1][i] 
            
-# =============================================================================
+# 
 #         #populate intercept and coefficient standard error columns in forecast_df with model values   
 #         forecast_df['INTERCEPT_se'] = model_dict[key][9][0]
 #         for i in range(len(predictor_names)):
@@ -610,13 +651,85 @@ for key in model_dict:
 #         for i in range(len(predictor_names)):
 #            forecast_df[predictor_names[i] + '_p'] = model_dict[key][10][1][i] 
 #            
-# =============================================================================
+# 
         
-        #create a column place holder for test_root_MSE
+        #populate test_root_MSE from model test data
         forecast_df['test_root_MSE'] = model_dict[key][7]
     
-        #create a column place holder for R2
+        #populate R2 from model test data
         forecast_df['R2'] = model_dict[key][8]
+        
+#=============================================================================
+    #Forecast Prediction for Model Gamma.  Gamma is the function definition
+    #in the model Module. It is ok if it warns undefined
+    
+    #if model_dict[key][0] == Gamma:
+    
+    if model_dict[key][0] in [Gamma, NegativeBinomial,
+                               generalizePoisson,generalizedPoisson2]:
+         
+        predictor_names = model_dict[key][6]
+        #predictor_names = ['IFR', 'AWND', 'PRCP_SQRT', 'TMAX', 'isAHOLIDAY', 'SNOW_SQRT']
+        
+        #create x value DataFrame for predictions
+        x_forecast = forecast_df[predictor_names]
+        
+        
+        #Use model object from model_dict to forecast current plus next 7 days
+        
+        #pull model object from model_dict and name it results
+        results = model_dict[key][4]
+        
+        #predict future VFR flights with saved model object from model_dict
+        #if Gamma or NegativeBinomial
+        if model_dict[key][0] in [Gamma, NegativeBinomial]:
+            
+            #predict future VFR flights with saved model object from model_dict
+            poisson_predictions = results.get_prediction(x_forecast)
+            predictions_summary_frame = poisson_predictions.summary_frame()
+            print(key)
+            print(predictions_summary_frame.head(15))
+            
+            #get future predictions of VFR Flight volume
+            y_forecast = predictions_summary_frame['mean']
+            
+            #place future predictions of VFR in forecast_df
+            forecast_df['y_forecast'] = y_forecast
+            
+            #pull confidence intervals for future predicted VFR and populate
+            #forecast_df       
+            forecast_df['CONF_lower'] = predictions_summary_frame['mean_ci_lower']
+            
+            forecast_df['CONF_upper'] = predictions_summary_frame['mean_ci_upper']
+        
+        
+        #predict future VFR flights with saved model object from model_dict
+        #if generalizePoisson,generalizedPoisson2
+        
+        if model_dict[key][0] in [generalizePoisson,generalizedPoisson2]:          
+            
+            y_forecast = results.predict(x_forecast)
+            forecast_df['y_forecast'] = y_forecast
+            
+        #pull coefficients for parameters and populate forecast_df
+        #(includes intercept for GLM models in main list)
+        
+        for i in range(len(predictor_names)):
+            forecast_df[predictor_names[i] + '_coeff'] = results.params[i]
+                       
+        #pull Standard Errors of coefficients for parameters and populate
+        #forecast_df (includes intercept for GLM models in main list)
+        
+        for i in range(len(predictor_names)):
+            forecast_df[predictor_names[i] + '_coeff_se'] = results.bse[i]
+                     
+        #pull p values of coefficients for parameters and populate
+        #forecast_df (includes intercept for GLM models in main list)
+        
+        for i in range(len(predictor_names)):
+            forecast_df[predictor_names[i] + '_p'] = results.pvalues[i]
+                     
+        
         
     #--------------------------------------  
        
@@ -713,4 +826,8 @@ shape_df.to_csv(path)
 
 
 #print(forecast_df.dtypes)    
+
+
+
+
 
