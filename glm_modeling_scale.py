@@ -164,19 +164,20 @@ def visualizeModel(df, vis, predicted_counts):
     
 assign_dict = dict()
 assign_dict['ACY'] = [generalizedPoisson2, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
-assign_dict['GFK'] = [generalizePoisson, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
-assign_dict['LGA'] = [NegativeBinomial, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
-assign_dict['EWR'] = [NegativeBinomial, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
-assign_dict['TEB'] = [NegativeBinomial,""" VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
-assign_dict['JFK'] = [NegativeBinomial,""" VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
-assign_dict['CVG'] = [NegativeBinomial, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
+assign_dict['GFK'] = [generalizedPoisson2, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
+assign_dict['LGA'] = [generalizedPoisson2, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
+assign_dict['EWR'] = [generalizedPoisson2, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
+assign_dict['TEB'] = [generalizedPoisson2,""" VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
+assign_dict['JFK'] = [generalizedPoisson2,""" VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
+assign_dict['CVG'] = [generalizedPoisson2, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
 assign_dict['PRC'] = [NegativeBinomial, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
 assign_dict['DVT'] = [Gamma, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
 assign_dict['VNY'] = [Gamma, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
 
 
 for key in ['ACY', 'GFK', 'LGA', 'EWR', 'TEB', 'JFK', 'CVG', 'PRC', 'DVT', 'VNY']:
-    
+#for key in ['ACY']:
+     
     #key = "ACY"
     data = datasets[key]#.loc[730:1094]
     
@@ -213,18 +214,9 @@ for key in ['ACY', 'GFK', 'LGA', 'EWR', 'TEB', 'JFK', 'CVG', 'PRC', 'DVT', 'VNY'
     
     assign_dict[key][0]()
     
+    ModRes = assign_dict[key][0]()
     
     
-    
-#Build Model Dictionary in the model functions   
-
-#    
-        
-# =============================================================================
-#     model_dict[key] = [assign_dict[key][0], data['LATITUDE'][0], data['LONGITUDE'][0],
-#                         data['IFR'].mean(), results, expr, list(X_test)] 
-# 
-# =============================================================================
 
 
 
