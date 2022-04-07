@@ -48,7 +48,7 @@ model_dict = {}
 #for key in ["FAI", "ANC", "JNU"]: 
 for key in ["JFK", "EWR", "LGA", "TEB", "VNY", "ACY", "GFK", "DVT", "PRC", "CVG"]:    
     
-    #reading in the data csv file outputed by the cleaning tool
+    #reading in the data outputed by the cleaning tool
     #data = d.datasets['ANC']
     data = datasets[key]
     print(data['LOC'][0])
@@ -94,7 +94,7 @@ for key in ["JFK", "EWR", "LGA", "TEB", "VNY", "ACY", "GFK", "DVT", "PRC", "CVG"
     #y= y + .01
     #lny = np.log(y+1)
     
-    predictor_names = ['IFR', 'AWND', 'PRCP_SQRT', 'TMAX', 'isAHoliday', 'SNOW_SQRT']
+    predictor_names = ['IFR', 'AWND', 'PRCP_SQRT', 'TMAX', 'isAHOLIDAY', 'SNOW_SQRT']
     #X = pd.DataFrame(data, columns = predictor_names)
     #y = pd.DataFrame(data, columns=['VFR'])
     
@@ -128,6 +128,11 @@ for key in ["JFK", "EWR", "LGA", "TEB", "VNY", "ACY", "GFK", "DVT", "PRC", "CVG"
     plt.title('Actual vs Predicted Values')
     plt.show()
 
+
+
+    #calculate interval for prediction intervals
+    
+    
     
     #Model Dictionary =
     #Airport ID : [Model description, Lat, Lon, average IFR Value for airport,

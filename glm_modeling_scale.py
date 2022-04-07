@@ -58,8 +58,8 @@ def NegativeBinomial():
     predicted_counts = predictions_summary_frame['mean']
     visualizeModel(data, 'Negative Binomial',predicted_counts)
     
-    
-    model_dict[key] = [assign_dict[key][0], data['LATITUDE'][0],
+    mod_descript = 'NegativeBinomial'
+    model_dict[key] = [mod_descript, data['LATITUDE'][0],
                        data['LONGITUDE'][0], data['IFR'].mean(), results,
                        expr, list(X_test)]
     
@@ -84,7 +84,8 @@ def Gamma():
     visualizeModel(data, 'Gamma',predicted_counts)
     
     
-    model_dict[key] = [assign_dict[key][0], data['LATITUDE'][0],
+    mod_descript = 'Gamma'
+    model_dict[key] = [mod_descript, data['LATITUDE'][0],
                        data['LONGITUDE'][0], data['IFR'].mean(), results,
                        expr, list(X_test)]
     
@@ -105,7 +106,8 @@ def generalizePoisson():
     visualizeModel(data, "Consul's Generalized Poisson", predicted_counts)
     
     
-    model_dict[key] = [assign_dict[key][0], data['LATITUDE'][0],
+    mod_descript = 'generalizePoisson'
+    model_dict[key] = [mod_descript, data['LATITUDE'][0],
                        data['LONGITUDE'][0], data['IFR'].mean(), results,
                        expr, list(X_test)]
     
@@ -125,9 +127,10 @@ def generalizedPoisson2():
     predicted_counts=gen_poisson_gp2_predictions
     
     visualizeModel(data, "Famoye’s Restricted Generalized Poisson",predicted_counts)
+
     
-    
-    model_dict[key] = [assign_dict[key][0], data['LATITUDE'][0],
+    mod_descript = 'generalizedPoisson2'
+    model_dict[key] = [mod_descript, data['LATITUDE'][0],
                        data['LONGITUDE'][0], data['IFR'].mean(), results,
                        expr, list(X_test)]
     
@@ -163,11 +166,11 @@ def visualizeModel(df, vis, predicted_counts):
 #assignment dictionary holds model and predictor selection decisions for a=each airport
     
 assign_dict = dict()
-assign_dict['ACY'] = [generalizedPoisson2, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
-assign_dict['GFK'] = [generalizedPoisson2, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
-assign_dict['LGA'] = [generalizedPoisson2, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
-assign_dict['EWR'] = [generalizedPoisson2, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
-assign_dict['TEB'] = [generalizedPoisson2,""" VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
+assign_dict['ACY'] = [generalizePoisson, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
+assign_dict['GFK'] = [generalizePoisson, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
+assign_dict['LGA'] = [generalizePoisson, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
+assign_dict['EWR'] = [generalizePoisson, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
+assign_dict['TEB'] = [generalizePoisson,""" VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
 assign_dict['JFK'] = [generalizedPoisson2,""" VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
 assign_dict['CVG'] = [generalizedPoisson2, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
 assign_dict['PRC'] = [NegativeBinomial, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
