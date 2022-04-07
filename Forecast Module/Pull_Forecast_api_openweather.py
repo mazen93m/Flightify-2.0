@@ -635,7 +635,7 @@ for key in model_dict:
         
         
         #populate intercept and coefficients columns in forecast_df with model values
-        forecast_df['INTERCEPT'] = model_dict[key][5][0]
+        forecast_df['Intercept_coeff'] = model_dict[key][5][0]
         for i in range(len(predictor_names)):
            forecast_df[predictor_names[i] + '_coeff'] = model_dict[key][5][1][i] 
            
@@ -665,8 +665,8 @@ for key in model_dict:
     
     #if model_dict[key][0] == Gamma:
     
-    if model_dict[key][0] in [Gamma, NegativeBinomial,
-                               generalizePoisson,generalizedPoisson2]:
+    if model_dict[key][0] in ['Gamma', 'NegativeBinomial',
+                               'generalizePoisson','generalizedPoisson2']:
          
         predictor_names = model_dict[key][6]
         #predictor_names = ['IFR', 'AWND', 'PRCP_SQRT', 'TMAX', 'isAHOLIDAY', 'SNOW_SQRT']
@@ -682,7 +682,7 @@ for key in model_dict:
         
         #predict future VFR flights with saved model object from model_dict
         #if Gamma or NegativeBinomial
-        if model_dict[key][0] in [Gamma, NegativeBinomial]:
+        if model_dict[key][0] in ['Gamma', 'NegativeBinomial']:
             
             #predict future VFR flights with saved model object from model_dict
             poisson_predictions = results.get_prediction(x_forecast)
@@ -706,7 +706,7 @@ for key in model_dict:
         #predict future VFR flights with saved model object from model_dict
         #if generalizePoisson,generalizedPoisson2
         
-        if model_dict[key][0] in [generalizePoisson,generalizedPoisson2]:          
+        if model_dict[key][0] in ['generalizePoisson','generalizedPoisson2']:          
             
             y_forecast = results.predict(x_forecast)
             forecast_df['y_forecast'] = y_forecast
