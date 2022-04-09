@@ -55,6 +55,9 @@ import requests
 import json
 import pickle
 import os
+import statsmodels.api as sm
+import numpy as np
+
 
 # =============================================================================
 # #Read in model dictionary from disk
@@ -597,6 +600,14 @@ for key in model_dict:
     #create a column place holder for LLR p-value
     forecast_df['LLR p-value'] = 'NaN'
     
+    #create a column place holder for model description, mod_descript,
+    #pulled from model_dict exported from model module
+    forecast_df['mod_descript'] = 'NaN'
+    
+    #create a column place holder for model formula, expr,
+    #pulled from model_dict exported from model module
+    forecast_df['expr'] = 'NaN'
+    
     #create a confidence lower limit place holder for prediction
     forecast_df['CONF_lower'] = 'NaN'
     
@@ -660,6 +671,7 @@ for key in model_dict:
         forecast_df['R2'] = model_dict[key][8]
         
 #=============================================================================
+    
     #Forecast Prediction for Model Gamma.  Gamma is the function definition
     #in the model Module. It is ok if it warns undefined
     
@@ -668,6 +680,14 @@ for key in model_dict:
     if model_dict[key][0] in ['Gamma', 'NegativeBinomial',
                                'generalizePoisson','generalizedPoisson2']:
          
+        #Populate model description column, mod_descript,
+        #pulled from model_dict exported from model module
+        forecast_df['mod_descript'] = model_dict[key][0]
+        
+        #Populate model formula, expr,
+        #pulled from model_dict exported from model module
+        forecast_df['expr'] = model_dict[key][5]
+        
         predictor_names = model_dict[key][6]
         #predictor_names = ['IFR', 'AWND', 'PRCP_SQRT', 'TMAX', 'isAHOLIDAY', 'SNOW_SQRT']
         
@@ -701,7 +721,13 @@ for key in model_dict:
             forecast_df['CONF_lower'] = predictions_summary_frame['mean_ci_lower']
             
             forecast_df['CONF_upper'] = predictions_summary_frame['mean_ci_upper']
-        
+            
+            #pull log likslihood for null model and populate forecast_df
+            forecast_df['LL-NULL'] = results.llnull
+            
+            #pull log likelihood for current model and populate forecast_df
+            forecast_df['LOG-LIKELIHOOD'] = results.llf
+            
         
         #predict future VFR flights with saved model object from model_dict
         #if generalizePoisson,generalizedPoisson2
@@ -710,6 +736,61 @@ for key in model_dict:
             
             y_forecast = results.predict(x_forecast)
             forecast_df['y_forecast'] = y_forecast
+            
+
+        #Doesn't work 
+#           pred_var = results.predict(x_forecast, which='var')
+#           Conf_low = y_forecast - 1.96*(pred_var)**(1/5)
+#           Conf_high = y_forecast + 1.96*(p_var)**(1/5)
+           
+            #confidence interval for parameter
+            #gives  alphas for generalizedPoisson at end but not for GLM
+#           Conf_low = results.conf_int()[0]
+#           Conf_high = results.conf_int()[1] 
+            
+            
+            #Calculate confidence intervals for predicted future VFR, y_forecast
+            
+            #pull out confidence intervals for coefficients
+            #Note: alpha is included at the end of coeff_conf_int() for 
+            #GeneralizedPoisson model objects
+#           coeff_conf_low = results.conf_int()[0]
+#           coeff_conf_high = results.conf_int()[1]
+            
+            #pull out alpha from end of pandas series
+            #Note: alpha is included at the end of coeff_conf_int() for 
+            #GeneralizedPoisson model objects
+            
+#           alpha_disperse_high = coeff_conf_high[-1]
+            
+            #multiply x_forecast matrix by confidence intervals for coefficients
+#           LP_low = np.matmul(np.array(x_forecast), np.array([coeff_conf_low[0:-1]]).T)
+#           LP_high = np.matmul(np.array(x_forecast), np.array([coeff_conf_high[0:-1]]).T)
+            
+            #take exponential
+#           E_low = np.exp(LP_low)
+#           E_high = np.exp(LP_high)
+            
+            #populate confidence intervals in forecast_df
+#           forecast_df['CONF_lower'] = E_low/(1-alpha_disperse_low)
+#           forecast_df['CONF_upper'] = E_high/(1-alpha_disperse_high)
+            
+            
+            
+            
+            #pull log likslihood for null model and populate forecast_df
+            forecast_df['LL-NULL'] = results.llnull
+            
+            #pull log likelihood for current model and populate forecast_df
+            forecast_df['LOG-LIKELIHOOD'] = results.llf
+            
+            #pull log likelihood p value for overall model
+            #popultate forecast_df
+            forecast_df['LLR p-value'] = results.llr_pvalue
+            
+            #pull pseudo R squared and populate forecast_df
+            forecast_df['PSEUDO R-SQU'] = results.prsquared
+            
             
         #pull coefficients for parameters and populate forecast_df
         #(includes intercept for GLM models in main list)
