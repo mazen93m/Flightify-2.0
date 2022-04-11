@@ -57,6 +57,26 @@ import pickle
 import os
 import statsmodels.api as sm
 import numpy as np
+import sys
+
+
+# =============================================================================
+
+#Open a file to write screen output to text file
+
+#get current working directory    
+cwd = os.getcwd()
+
+#identify path as the current working directory
+path = cwd + "\\execution_log_Pull_Forecast_api_openweather.txt"
+
+#print output to text file
+
+tem = sys.stdout
+sys.stdout = f = open(path, 'w')
+
+
+
 
 
 # =============================================================================
@@ -87,6 +107,8 @@ forecast_dict = {}
 combo_forecast_df = pd.DataFrame()
 #combo_forecast_df
 
+processed_airports = []
+unprocessed_airports = []
 
 #Iterate over model_dict or choose an airport to build forecast_dict
 
@@ -114,26 +136,12 @@ for key in model_dict:
     response = json.loads(requests.get(openweather_url).text)
     
     
+
+    #--------------------------------------------------------------------------
     
-    #test api
-    #the try catch tests json response values for the first response
-    #under daily which is listed as 0
-    
-    try:
-        date = response['daily'][0]['dt']
-        sunrise = response['daily'][0]['sunrise']
-        sunset = response['daily'][0]['sunset']
-        tmax = response['daily'][0]['temp']['max']
-        tmin = response['daily'][0]['temp']['min']
-        awnd = response['daily'][0]['wind_speed']
-        forecast = response['daily'][0]['weather'][0]['main']
-        prob_prec = response['daily'][0]['pop']
-        #prcp = response['daily'][0]['rain']
-        #snow = response['daily'][0]['snow']    
-        print(' ... done.')
-    except KeyError:
-        print('... Open Weather API unresponsive for this request, try again.')
-        
+    #Checking if KeyError.
+    #If KeyError it places a 0 for rain and 0 for snow
+    # and NaN for others
     
     # It is possible to have more than one weather condition for
     # a requested location. The first weather condition in API 
@@ -141,16 +149,7 @@ for key in model_dict:
     # We are using primary  response['daily']['weather'][0]['main']
         
     
-    
-    #--------------------------
-    
-    #Ending 1.0
-    #Checking if KeyError.
-    #If KeyError it places a 0 for rain and 0 for snow
-    # and NaN for others
-    
-    
-    #Now that the test works create lists for the forcast variables
+    #create lists for the forcast variables
     #list names need to be lower case
     
     # Use rain_List and snow_List if choosing binary prcp and snow
@@ -172,13 +171,13 @@ for key in model_dict:
             sunrise.append(day['sunrise'])
         except KeyError:
             print('... Open Weather API unresponsive for sunrise, try again.')
-            date.append('NaN')
+            sunrise.append('NaN')
             
         try:
             sunset.append(day['sunset'])
         except KeyError:
             print('... Open Weather API unresponsive for sunset, try again.')
-            date.append('NaN')
+            sunset.append('NaN')
             
         try:    
             tmax.append(day['temp']['max'])
@@ -190,7 +189,7 @@ for key in model_dict:
             tmin.append(day['temp']['min'])
         except KeyError:
             print('... Open Weather API unresponsive for temp min, inserting NaN.')
-            tmax.append('NaN')   
+            tmin.append('NaN')   
             
         try:
             awnd.append(day['wind_speed'])
@@ -234,7 +233,10 @@ for key in model_dict:
     #   except KeyError:
     #       print('... Open Weather API unresponsive for snow binary calc, try again.')
     #       snow.append('NaN')   
-                    
+     
+    print(' ... API Open Weather pull done for ' + key)
+    print("\r")
+               
         
     #Make a pandas dataframe from the list created from the json
     #response 
@@ -311,9 +313,11 @@ for key in model_dict:
     
     Date = []  #place to hold converts to local time
     
-    for i in forecast_df.loc[:,'DATE_unix_UTC']:
+    
+    for i in forecast_df.loc[:,'DATE_unix_UTC']:   
         convert = pd.to_datetime(i, unit='s') #default is local time zone
         Date.append(convert)
+       
         
     #print(Date) 
     
@@ -328,10 +332,12 @@ for key in model_dict:
     Month = list(pd.DatetimeIndex(forecast_df['Date']).month)
     Day = list(pd.DatetimeIndex(forecast_df['Date']).day)  
     Week_Day = list(pd.DatetimeIndex(forecast_df['Date']).weekday)
+    Year = list(pd.DatetimeIndex(forecast_df['Date']).year)
     
     forecast_df['Month'] = Month
     forecast_df['Day'] = Day
     forecast_df['Week_Day'] = Week_Day
+    forecast_df['Year'] = Year
     
     
     
@@ -384,6 +390,8 @@ for key in model_dict:
     for i in forecast_df.loc[:,'PRCP']:
         convert = i/25.4 #
         PRCP_inches.append(convert)
+        
+           
         
     #print(PRCP_inches)  
     
@@ -565,7 +573,7 @@ for key in model_dict:
 #-------------------------------------- 
 
     possible_predictors = ['IFR', 'AWND', 'PRCP', 'PRCP_SQRT', 'SNOW', 'SNOW_SQRT',
-                           'TMIN', 'TMAX', 'isAHOLIDAY', 'Month', 'Day', 'Week_Day']
+                           'TMIN', 'TMAX', 'isAHOLIDAY', 'Month', 'Day', 'Week_Day', 'Year']
     
     #create a column place holder for intercept and coefficeints
     forecast_df['Intercept_coeff'] = 'NaN'
@@ -617,7 +625,8 @@ for key in model_dict:
     
 #--------------------------------------
  
-        
+    print("Predicting future VFR flights for " + key)  
+    print("\r")
         
 #--------------------------------------
       
@@ -702,51 +711,68 @@ for key in model_dict:
         
         #predict future VFR flights with saved model object from model_dict
         #if Gamma or NegativeBinomial
+        #If error, append unprocessed list and move to next airport
+        
         if model_dict[key][0] in ['Gamma', 'NegativeBinomial']:
             
-            #predict future VFR flights with saved model object from model_dict
-            poisson_predictions = results.get_prediction(x_forecast)
-            predictions_summary_frame = poisson_predictions.summary_frame()
-            print(key)
-            print(predictions_summary_frame.head(15))
-            
-            #get future predictions of VFR Flight volume
-            y_forecast = predictions_summary_frame['mean']
-            
-            #place future predictions of VFR in forecast_df
-            forecast_df['y_forecast'] = y_forecast
-            
-            #pull confidence intervals for future predicted VFR and populate
-            #forecast_df       
-            forecast_df['CONF_lower'] = predictions_summary_frame['mean_ci_lower']
-            
-            forecast_df['CONF_upper'] = predictions_summary_frame['mean_ci_upper']
-            
-            #pull log likslihood for null model and populate forecast_df
-            forecast_df['LL-NULL'] = results.llnull
-            
-            #pull log likelihood for current model and populate forecast_df
-            forecast_df['LOG-LIKELIHOOD'] = results.llf
-            
+            try:            
+                #predict future VFR flights with saved model object from model_dict
+                poisson_predictions = results.get_prediction(x_forecast)
+                predictions_summary_frame = poisson_predictions.summary_frame()
+                #print(key)
+                #print(predictions_summary_frame.head(15))
+                
+                #get future predictions of VFR Flight volume
+                y_forecast = predictions_summary_frame['mean']
+                
+                #place future predictions of VFR in forecast_df
+                forecast_df['y_forecast'] = y_forecast
+                
+                #pull confidence intervals for future predicted VFR and populate
+                #forecast_df       
+                forecast_df['CONF_lower'] = predictions_summary_frame['mean_ci_lower']
+                
+                forecast_df['CONF_upper'] = predictions_summary_frame['mean_ci_upper']
+                
+                #pull log likslihood for null model and populate forecast_df
+                forecast_df['LL-NULL'] = results.llnull
+                
+                #pull log likelihood for current model and populate forecast_df
+                forecast_df['LOG-LIKELIHOOD'] = results.llf
+                
+                processed_airports.append(key)
+                
+            except:
+                forecast_df['y_forecast'] = 'NaN'
+                unprocessed_airports.append(key)
+                
         
         #predict future VFR flights with saved model object from model_dict
         #if generalizePoisson,generalizedPoisson2
+        #If error, append unprocessed list and move to next airport
         
         if model_dict[key][0] in ['generalizePoisson','generalizedPoisson2']:          
             
-            y_forecast = results.predict(x_forecast)
-            forecast_df['y_forecast'] = y_forecast
-            
-
-        #Doesn't work 
-#           pred_var = results.predict(x_forecast, which='var')
-#           Conf_low = y_forecast - 1.96*(pred_var)**(1/5)
-#           Conf_high = y_forecast + 1.96*(p_var)**(1/5)
+            try:
+                y_forecast = results.predict(x_forecast)
+                forecast_df['y_forecast'] = y_forecast
+                
+                processed_airports.append(key)
+                    
+                #Doesn't work 
+                #pred_var = results.predict(x_forecast, which='var')
+                #Conf_low = y_forecast - 1.96*(pred_var)**(1/5)
+                #Conf_high = y_forecast + 1.96*(p_var)**(1/5)
+                
+            except:
+                forecast_df['y_forecast'] = 'NaN'
+                unprocessed_airports.append(key)
+                
            
             #confidence interval for parameter
             #gives  alphas for generalizedPoisson at end but not for GLM
-#           Conf_low = results.conf_int()[0]
-#           Conf_high = results.conf_int()[1] 
+            #Conf_low = results.conf_int()[0]
+            #Conf_high = results.conf_int()[1] 
             
             
             #Calculate confidence intervals for predicted future VFR, y_forecast
@@ -754,28 +780,26 @@ for key in model_dict:
             #pull out confidence intervals for coefficients
             #Note: alpha is included at the end of coeff_conf_int() for 
             #GeneralizedPoisson model objects
-#           coeff_conf_low = results.conf_int()[0]
-#           coeff_conf_high = results.conf_int()[1]
+            #coeff_conf_low = results.conf_int()[0]
+            #coeff_conf_high = results.conf_int()[1]
             
             #pull out alpha from end of pandas series
             #Note: alpha is included at the end of coeff_conf_int() for 
             #GeneralizedPoisson model objects
             
-#           alpha_disperse_high = coeff_conf_high[-1]
+            #alpha_disperse_high = coeff_conf_high[-1]
             
             #multiply x_forecast matrix by confidence intervals for coefficients
-#           LP_low = np.matmul(np.array(x_forecast), np.array([coeff_conf_low[0:-1]]).T)
-#           LP_high = np.matmul(np.array(x_forecast), np.array([coeff_conf_high[0:-1]]).T)
+            #LP_low = np.matmul(np.array(x_forecast), np.array([coeff_conf_low[0:-1]]).T)
+            #LP_high = np.matmul(np.array(x_forecast), np.array([coeff_conf_high[0:-1]]).T)
             
             #take exponential
-#           E_low = np.exp(LP_low)
-#           E_high = np.exp(LP_high)
+            #E_low = np.exp(LP_low)
+            #E_high = np.exp(LP_high)
             
             #populate confidence intervals in forecast_df
-#           forecast_df['CONF_lower'] = E_low/(1-alpha_disperse_low)
-#           forecast_df['CONF_upper'] = E_high/(1-alpha_disperse_high)
-            
-            
+            #forecast_df['CONF_lower'] = E_low/(1-alpha_disperse_low)
+            #forecast_df['CONF_upper'] = E_high/(1-alpha_disperse_high)
             
             
             #pull log likslihood for null model and populate forecast_df
@@ -813,13 +837,20 @@ for key in model_dict:
         
         
     #--------------------------------------  
-       
+    print("Finished Predicting future VFR flights for " + key)  
+    print("\r")
+    
     forecast_dict[key] = [forecast_df]
     
-    #-------------------------------------- 
+    print("Finished adding forecast_df to forecast_dict for " + key)  
+    print("\r") 
     
     #add the current airport forecast_df to the combined forecast DataFrame
     combo_forecast_df = combo_forecast_df.append(forecast_df)
+    
+    print("Finished appending forecast_df to combo_forecast_df for " + key)  
+    print("\r") 
+    #-------------------------------------- 
     
 #make index a column with header day_index
 combo_forecast_df.reset_index(inplace=True)
@@ -829,32 +860,31 @@ combo_forecast_df = combo_forecast_df.rename(columns = {'index':'day_index'})
     
 #save csv for all combined airport forecast_df's
  
+print("Writing combo_forecast_df.csv to disk")  
+
 #get current working directory    
 cwd = os.getcwd()
 #identify path as the current working directory
 path = cwd + "\\combo_forecast.csv"
 combo_forecast_df.to_csv(path)
 
-    
+print("Finished Writing combo_forecast_df.csv to disk")  
+print("\r")  
 #--------------------------------------------
 
 #create DataFrame and write csv to disk for point shape file
 #do not have an older version of csv open on you computer or it won't write
 
+#This code will create a shape file for any number of forecasted days.
+#It depends on the length of forecast_df
 
-#start lists to create DataFrame with shape file information
+#start lists to create shape_dict with shape file information
 LOC_sh = []
 LATITUDE_sh = []
 LONGITUDE_sh = []
-VFR_0 = []
-VFR_1 = []
-VFR_2 = []
-VFR_3 = []
-VFR_4 = []
-VFR_5 = []
-VFR_6 = []
-VFR_7 = []
+VFR_Var_List = []
 
+#begin building lists for shape_dict
 for key in forecast_dict:
     
     LOC_sh.append(forecast_dict[key][0]["LOC"][0])
@@ -862,48 +892,133 @@ for key in forecast_dict:
     LATITUDE_sh.append(forecast_dict[key][0]["LATITUDE"][0])
      
     LONGITUDE_sh.append(forecast_dict[key][0]["LONGITUDE"][0])
-     
-    VFR_0.append(forecast_dict[key][0]["y_forecast"][0])
     
-    VFR_1.append(forecast_dict[key][0]["y_forecast"][1])
-    
-    VFR_2.append(forecast_dict[key][0]["y_forecast"][2])
-    
-    VFR_3.append(forecast_dict[key][0]["y_forecast"][3])
-    
-    VFR_4.append(forecast_dict[key][0]["y_forecast"][4])
-    
-    VFR_5.append(forecast_dict[key][0]["y_forecast"][5])
-    
-    VFR_6.append(forecast_dict[key][0]["y_forecast"][6])
-    
-    VFR_7.append(forecast_dict[key][0]["y_forecast"][7])
-    
-
 # create shape dictionary of column lists 
-shape_dict = {'LOC': LOC_sh, 'LATITUDE': LATITUDE_sh, 'LONGITUDE': LONGITUDE_sh,
-             "VFR " + str(forecast_dict[key][0]["Date"][0]) : VFR_0,
-             "VFR " + str(forecast_dict[key][0]["Date"][1]) : VFR_1,
-             "VFR " + str(forecast_dict[key][0]["Date"][2]) : VFR_2,
-             "VFR " + str(forecast_dict[key][0]["Date"][3]) : VFR_3,
-             "VFR " + str(forecast_dict[key][0]["Date"][4]) : VFR_4,
-             "VFR " + str(forecast_dict[key][0]["Date"][5]) : VFR_5,
-             "VFR " + str(forecast_dict[key][0]["Date"][6]) : VFR_6,
-             "VFR " + str(forecast_dict[key][0]["Date"][7]) : VFR_7 } 
+shape_dict = {'LOC': LOC_sh, 'LATITUDE': LATITUDE_sh, 'LONGITUDE': LONGITUDE_sh}
+
+#add emptyt lists to hold y_forecast VFR predicted values
+for i in range(len(forecast_df)):
+    shape_dict["VFR " + str(forecast_dict[key][0]["Date"][i])] = []
+
+#populate the y_forecast VFR predicted values
+for i in range(len(forecast_df)):
+    for key in forecast_dict:
+        shape_dict["VFR " + str(forecast_dict[key][0]["Date"][i])].append(forecast_dict[key][0]["y_forecast"][i])
+    
 
 #create DataFrame from dictionary    
 shape_df = pd.DataFrame(shape_dict)
   
+  
+# =============================================================================
+#This code assumes 8 days of forecast
+
+# #start lists to create DataFrame with shape file information
+# LOC_sh = []
+# LATITUDE_sh = []
+# LONGITUDE_sh = []
+# VFR_0 = []
+# VFR_1 = []
+# VFR_2 = []
+# VFR_3 = []
+# VFR_4 = []
+# VFR_5 = []
+# VFR_6 = []
+# VFR_7 = []
+# 
+# for key in forecast_dict:
+#     
+#     LOC_sh.append(forecast_dict[key][0]["LOC"][0])
+#     
+#     LATITUDE_sh.append(forecast_dict[key][0]["LATITUDE"][0])
+#      
+#     LONGITUDE_sh.append(forecast_dict[key][0]["LONGITUDE"][0])
+#      
+#     VFR_0.append(forecast_dict[key][0]["y_forecast"][0])
+#     
+#     VFR_1.append(forecast_dict[key][0]["y_forecast"][1])
+#     
+#     VFR_2.append(forecast_dict[key][0]["y_forecast"][2])
+#     
+#     VFR_3.append(forecast_dict[key][0]["y_forecast"][3])
+#     
+#     VFR_4.append(forecast_dict[key][0]["y_forecast"][4])
+#     
+#     VFR_5.append(forecast_dict[key][0]["y_forecast"][5])
+#     
+#     VFR_6.append(forecast_dict[key][0]["y_forecast"][6])
+#     
+#     VFR_7.append(forecast_dict[key][0]["y_forecast"][7])
+#     
+# 
+# # create shape dictionary of column lists 
+# shape_dict = {'LOC': LOC_sh, 'LATITUDE': LATITUDE_sh, 'LONGITUDE': LONGITUDE_sh,
+#              "VFR " + str(forecast_dict[key][0]["Date"][0]) : VFR_0,
+#              "VFR " + str(forecast_dict[key][0]["Date"][1]) : VFR_1,
+#              "VFR " + str(forecast_dict[key][0]["Date"][2]) : VFR_2,
+#              "VFR " + str(forecast_dict[key][0]["Date"][3]) : VFR_3,
+#              "VFR " + str(forecast_dict[key][0]["Date"][4]) : VFR_4,
+#              "VFR " + str(forecast_dict[key][0]["Date"][5]) : VFR_5,
+#              "VFR " + str(forecast_dict[key][0]["Date"][6]) : VFR_6,
+#              "VFR " + str(forecast_dict[key][0]["Date"][7]) : VFR_7 } 
+# 
+# #create DataFrame from dictionary    
+# shape_df = pd.DataFrame(shape_dict)
+#   
+# =============================================================================
 
   
 #write the shape_df to a shape_df.csv 
 #do not have an older version of csv open on you computer or it won't write  
+print("\r")
+print("Writing shape.csv to disk")  
    
 #get current working directory    
 cwd = os.getcwd()
 #identify path as the current working directory
 path = cwd + "\\shape.csv"
 shape_df.to_csv(path)
+
+print("Finished Writing shape.csv to disk")  
+print("\r")
+
+
+
+#Create DataFrames and write csv to disk of lists of processed and unprocessed airports
+
+#create DataFrame for 
+unprocessed_df = pd.DataFrame(unprocessed_airports, columns=['unprocessed_airports'])
+processed_df = pd.DataFrame(processed_airports, columns=['processed_airports'])
+
+print('Writing to processed and unprocessed airport csv files to disk')
+
+#write list of unprocessed airports to csv on disk
+cwd = os.getcwd()
+path = cwd + '\\unprocessed_airports.csv'
+unprocessed_df.to_csv(path)
+
+#write list of processed airports to csv on disk
+cwd = os.getcwd()
+path = cwd + '\\processed_airports.csv'
+processed_df.to_csv(path)
+
+print('Finished writing list of processed and unprocessed airport csv files to disk')
+print("\r")
+
+#print unprocessed airports
+print('List of unprocessed airports')
+print(unprocessed_df)
+print("\r")
+
+#print processed airports
+print('List of processed airports')
+print(processed_df)
+
+#stop writing output to disk and close open text file
+sys.stdout = tem
+f.close()
+
+
 
 
 #print(forecast_df.dtypes)    
