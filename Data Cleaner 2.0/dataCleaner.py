@@ -10,6 +10,8 @@ import pandas as pd
 import numpy as np
 import airports as a
 import os
+import pickle
+
 
 os.chdir('/Users/ajgray/Desktop/project')
 
@@ -507,20 +509,42 @@ def drop_NA_Cols():
     for key in dropped_dict:
         datasets[key] = datasets[key].drop(columns=[col for col in dropped_dict[key]],axis=1)
 
+def zeroImputer():
+    for key in dropped_dict:
+        for col in dropped_dict[key]:
+            datasets[key][col] = datasets[key][col].fillna(0)
+
 def SNOW_SQRT():
     for df in datasets:
         if 'SNOW' in datasets[df].columns:
             datasets[df]['SNOW_SQRT'] = datasets[df]['SNOW']**(1./2)
             
-drop_NA_Cols()
+def dropHoliday():
+    for key in datasets:
+        datasets[key] = datasets[key].drop(['isAHoliday'], axis=1)
+          
+def parseDateCols():
+    for key in datasets:
+        data = datasets[key]                
+        # Create day, month, and weekday predictor variables
+        for i in range(len(data)):
+            data.loc[i, 'Year'] = data.loc[i, 'Date'].year
+            data.loc[i, 'Month'] = data.loc[i, 'Date'].month
+            data.loc[i, 'Day'] = data.loc[i, 'Date'].day
+            data.loc[i, 'Week_Day'] = data.loc[i, 'Date'].weekday()
+        
+        data.index = data.Date
+         
+        
+#drop_NA_Cols()
+zeroImputer()
+dropHoliday()
+parseDateCols()
 SNOW_SQRT()
-            
+
+
 
 # load pickle module
-import pickle
-
-# define dictionary
-#dict = {'Python' : '.py', 'C++' : '.cpp', 'Java' : '.java'}
 
 # create a binary pickle file
 f = open("datasets.pkl","wb")
