@@ -9,6 +9,8 @@ import pandas as pd
 import numpy as np
 from patsy import dmatrices
 import statsmodels.api as sm
+from sklearn import metrics
+import math
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pickle
@@ -42,28 +44,33 @@ y_train = ""
 X_train = ""
 y_test = ""
 X_test = ""
+expr = ""
 actual_counts = ""
+lst1 = []
 
 def dropEmptyCols(key):
     for col in datasets[key].columns[7:]:
         if max(datasets[key][col]) == 0:
             datasets[key] = datasets[key].drop(col,axis=1)
+            
+        # Taking care of singular matrix error for glm poisson
+        elif len(datasets[key][col].unique()) == 2: #and datasets[key][col].unique()[0] == 0. and datasets[key][col].unique()[1] == 1.:
+            #print('{}: {}'.format(col,datasets[key][col].unique()))
+            datasets[key] = datasets[key].drop(col,axis=1)
 
-#for key in datasets:
-for key in ['CRP']:
-    datasets[key] = datasets[key].drop(['isAHoliday'], axis=1)
-    dropEmptyCols(key)
-    data = datasets[key]
-    #print(data.LOC[0])
-    
-        
-    # Create day, month, and weekday predictor variables
-    for i in range(len(data)):
-        data.loc[i, 'Month'] = data.loc[i, 'Date'].month
-        #data.loc[i, 'Day'] = data.loc[i, 'Date'].day
-        #data.loc[i, 'Week_Day'] = data.loc[i, 'Date'].weekday()
-    
-    data.index = data.Date
+
+def findNull_llf():
+    for key in model_dict:
+        if pd.isnull(model_dict[key][4].llf):
+            lst1.append(key)
+            
+    return lst1
+
+
+def dropEmpties():
+    for key in datasets:
+        dropEmptyCols(key) 
+  
 
 def hasIFR(df):
     if 'IFR' in df.columns:
@@ -101,7 +108,7 @@ def highPredsLst(key,results):
                 
     return highpvals
 
-def NegativeBinomial():
+def NegativeBinomial(key):
     # Training a Poisson regression model from the statsmodels GLM class
     poisson_training = sm.GLM(y_train, X_train, family=sm.families.NegativeBinomial(link=sm.families.links.log()))
     results = poisson_training.fit()
@@ -117,16 +124,16 @@ def NegativeBinomial():
     
     
     predicted_counts = predictions_summary_frame['mean']
-    visualizeModel(data, 'Negative Binomial',predicted_counts)
+    visualizeModel(datasets[key], 'Negative Binomial',predicted_counts)
     
     mod_descript = 'NegativeBinomial'
-    model_dict[key] = [mod_descript, data['LATITUDE'][0],
-                       data['LONGITUDE'][0], data['IFR'].mean(), results,
+    model_dict[key] = [mod_descript, datasets[key]['LATITUDE'][0],
+                       datasets[key]['LONGITUDE'][0], datasets[key]['IFR'].mean(), results,
                        expr, list(X_test)]
     
     return results
 
-def Gamma():
+def Gamma(key):
     # Training a Poisson regression model from the statsmodels GLM class
     poisson_training = sm.GLM(y_train, X_train, family=sm.families.Gamma(link=sm.families.links.log()))
     results = poisson_training.fit()
@@ -142,78 +149,82 @@ def Gamma():
     
     
     predicted_counts = predictions_summary_frame['mean']
-    visualizeModel(data, 'Gamma',predicted_counts)
+    visualizeModel(datasets[key], 'Gamma',predicted_counts)
     
     
     mod_descript = 'Gamma'
-    model_dict[key] = [mod_descript, data['LATITUDE'][0],
-                       data['LONGITUDE'][0], data['IFR'].mean(), results,
+    model_dict[key] = [mod_descript, datasets[key]['LATITUDE'][0],
+                       datasets[key]['LONGITUDE'][0], datasets[key]['IFR'].mean(), results,
                        expr, list(X_test)]
     
     return results
 
 
-# [el for el in predictions_summary_frame.index if (el.year == 2017) and (el.month == 7)]
-def generalizePoisson():
+def generalizePoisson(key):
     global expr
     global y_train,X_train
     mod_descript = 'generalizePoisson'
-    count=1
-    #print(data.columns)
+    
     # Fit (train) the model:
     if datasets[key].LOC[0] == 'CVG':
         gen_poisson_gp1 = sm.GeneralizedPoisson(y_train, X_train, p=2)
     else:
         gen_poisson_gp1 = sm.GeneralizedPoisson(y_train, X_train, p=1)
     
-    # Fit (train) the model:
     for col in datasets[key].columns[7:]:
-        if len(datasets[key][col].unique()) == 2 and datasets[key][col].unique()[0] == 0. and datasets[key][col].unique()[1] == 1.:
+        if len(datasets[key][col].unique()) == 2: 
             print('{}: {}'.format(col,datasets[key][col].unique()))
             
-    #print(datasets[key].describe())
     results = gen_poisson_gp1.fit(method='newton')
-    
 
+    if pd.isnull(results.llf):
+        if 'SNOW' in datasets[key].columns:
+            datasets[key] = datasets[key].drop('SNOW',axis=1)
+            expr = getExpr(key)
+            createTrainTest(key,expr)
+            generalizePoisson(key)
+
+        elif 'SNOW_SQRT' in datasets[key].columns:
+            datasets[key] = datasets[key].drop('SNOW_SQRT',axis=1)
+            expr = getExpr(key)
+            createTrainTest(key,expr)
+            generalizePoisson(key)           
+            
     gen_poisson_gp1_predictions = results.predict(X_test)
     predicted_counts=gen_poisson_gp1_predictions
 
     
     
-    #print(model_dict[key][4].summary())
     highPreds = highPredsLst(key,results)
-    if len(highPreds) == 0:
+    if len(highPreds) == 0 and pd.isnull(results.llf) == False:
+        y_pred = results.predict(X_test)
+        rmse = round(math.sqrt(metrics.mean_squared_error(y_test, y_pred)),2)
+        std = round(np.std(y_test),2)
+
+        
         model_dict[key] = [mod_descript, datasets[key]['LATITUDE'][0],
                            datasets[key]['LONGITUDE'][0], hasIFR(datasets[key]), gen_poisson_gp1.fit(method='newton'),
-                           expr, list(X_test)]
+                           expr, list(X_test),rmse,std]
+        print('{}\n{}: {}'.format(key,'RMSE',rmse))
+        print('{}: {}'.format('Standard Deviation',std))
+        print('\n{}'.format(model_dict[key][4].summary()))
+
         visualizeModel(datasets[key], "Consul's Generalized Poisson", predicted_counts)
         
-    #print(highPreds)
+        
     if len(highPreds) > 0:
-        #print(len(highPreds))
-        #print(data.columns)
-        #print('here')
-       #print(highPreds[0])
         datasets[key] = datasets[key].drop([col for col in highPreds],axis=1)
-        #print('HERE!!!')
-        #print(datasets[key].columns)
         expr = getExpr(key)
-        #print(expr)
-        createTrainTest(expr)
+        createTrainTest(key,expr)
         highPreds = []
         results = ""
-        count+=1
-        generalizePoisson()
-        #print('LAST 1',results.summary())
-     
-    if count == 2:
-        print('{}\n{}'.format(key,model_dict[key][4].summary()))
-    
+        generalizePoisson(key)
+
     return results
 
-def generalizedPoisson2():
+def generalizedPoisson2(key):
     # Fit (train) the model:
-    if data.LOC[0] == 'CVG':
+    if datasets[key].LOC[0] == 'CVG':
         gen_poisson_gp2 = sm.GeneralizedPoisson(y_train, X_train, p=3)
     else:
         gen_poisson_gp2 = sm.GeneralizedPoisson(y_train, X_train, p=2)
@@ -224,12 +235,12 @@ def generalizedPoisson2():
     gen_poisson_gp2_predictions = results.predict(X_test)
     predicted_counts=gen_poisson_gp2_predictions
     
-    visualizeModel(data, "Famoye’s Restricted Generalized Poisson",predicted_counts)
+    visualizeModel(datasets[key], "Famoye’s Restricted Generalized Poisson",predicted_counts)
 
     
     mod_descript = 'generalizedPoisson2'
-    model_dict[key] = [mod_descript, data['LATITUDE'][0],
-                       data['LONGITUDE'][0], data['IFR'].mean(), results,
+    model_dict[key] = [mod_descript, datasets[key]['LATITUDE'][0],
+                       datasets[key]['LONGITUDE'][0], datasets[key]['IFR'].mean(), results,
                        expr, list(X_test)]
     
     
@@ -245,17 +256,16 @@ def getExpr(key):
             expr+=dCols[i]
         else:
             expr+=' + {}'.format(dCols[i])
-    print(expr)
+    #print(expr)
     return expr
 
-def createTrainTest(expr=""):
+def createTrainTest(key, expr=""):
     global y_train,X_train,y_test,X_test,actual_counts
     # Create training and testing data sets
     np.random.seed(1)
     rand_selection = np.random.rand(len(datasets[key])) < .8
     data_train = datasets[key][rand_selection]
     data_test = datasets[key][~rand_selection]
-    #print('CREATE TRT',expr)
     y_train, X_train = dmatrices(expr, data_train, return_type='dataframe')
     y_test, X_test = dmatrices(expr, data_test, return_type='dataframe')
     actual_counts = y_test['VFR']
@@ -290,6 +300,19 @@ def visualizeModel(df, vis, predicted_counts):
     plt.show()
     
     plt.clf()
+    
+def runModels():
+    dropEmpties()
+    for key in datasets:
+        if key in ['AEX','IFP']:
+            continue
+        expr = getExpr(key)
+        createTrainTest(key,expr)
+        generalizePoisson(key)
+ 
+# Run the program
+runModels()
+
     #sns.set(rc={"figure.figsize":(10, 5)})
 # =============================================================================
 #     sns.set_style('white')
@@ -317,56 +340,7 @@ def visualizeModel(df, vis, predicted_counts):
 # assign_dict['DVT'] = [Gamma, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
 # assign_dict['VNY'] = [Gamma, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
 # =============================================================================
-
-
-
         
-    #pull formula for airport from assignment dictionary
-    #expr = assign_dict[key][1]
-#for key in datasets:
-for key in ['CRP']: 
-    expr = getExpr(key)
-    #print(expr)
-    expr_dict[key] = expr
-    # day and month are often not significant
-    #expr = """ VFR ~  Month + Day + Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """
-    #expr = """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """
-    
-    #expr = """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """
-    
-    createTrainTest(getExpr(key))
-        
-    
-    #call the assigned model for airport found in the assigned model dictionary
-    
-    #assign_dict[key][0]()
-    if key == 'DVT':
-        Gamma()
-    else:
-        generalizePoisson()
-       # model.conf_int() - confidence intervals
-       # conf_ints = dict()
-       # for i in range(len(model.conf_int())):
-           #conf_ints[model.conf_int().iloc[[i]].index[0]] = model.conf_int().iloc[i].values
-       # pvals = dict()
-       # for i in range(len(model.pvalues)):
-           #pvals[model.pvalues.iloc[[i]].index[0]] = model.pvalues.iloc[i]
-       # model.pvalues
-       # model.params
-       #model.llnull
-       # model.llf
-       # model.llr_pvalue
-       # model.prsquared
-       
-       # remove non-significant columns
-       # for col in pvals:
-          # if col != 'alpha':
-           #    if pvals[col] > 0.05:
-            #       datasets['ABI'] = datasets['ABI'].drop(col,axis=1)
-        
-
-
-
 
 #Pickle dump to save model_dict to file
         
@@ -378,9 +352,3 @@ pickle.dump(model_dict,f)
     
 # close file
 f.close()    
-
-
-
-#nb = NegativeBinomial()
-#gp2model = generalizedPoisson2()
-#gp1model = generalizePoisson()
