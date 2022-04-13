@@ -99,7 +99,7 @@ file_to_read.close()
 #Using units=imperial in api call means temp max is F, wind_speed is mph
 #rain and snow are returned as mm no matter what
 
-openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourly,alerts,minutely&appid={APIkey}&units=imperial'
+openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourly,alerts,minutely&appid={apikey}&units=imperial'
 
 #start a forecast dictionary
 forecast_dict = {}
@@ -113,8 +113,8 @@ unprocessed_airports = []
 
 #Iterate over model_dict or choose an airport to build forecast_dict
 
-for key in ['ACY', 'GFK', 'LGA', 'EWR', 'TEB', 'JFK', 'CVG', 'PRC', 'DVT', 'VNY']:
-#for key in model_dict:
+#for key in ['ACY', 'GFK', 'LGA', 'EWR', 'TEB', 'JFK', 'CVG', 'PRC', 'DVT', 'VNY']:
+for key in model_dict:
     
     print("Running airport " + key)
    
@@ -741,6 +741,9 @@ for key in ['ACY', 'GFK', 'LGA', 'EWR', 'TEB', 'JFK', 'CVG', 'PRC', 'DVT', 'VNY'
                 #pull log likelihood for current model and populate forecast_df
                 forecast_df['LOG-LIKELIHOOD'] = results.llf
                 
+                #calculate the pseudo R-squared since GLM does not and populate forecast_df
+                forecast_df['PSEUDO R-SQU'] = 1-forecast_df['LOG-LIKELIHOOD']/forecast_df['LL-NULL']
+                
                 processed_airports.append(key)
                 
             except:
@@ -812,7 +815,7 @@ for key in ['ACY', 'GFK', 'LGA', 'EWR', 'TEB', 'JFK', 'CVG', 'PRC', 'DVT', 'VNY'
 #***************           
             #confidence intervals
             #pull standard deviation of test y from model
-            std = model_dict[key][8][0]
+            std = model_dict[key][8]
             
             #conf_perc = 95 percent
             z_score = 1.96           
