@@ -104,32 +104,55 @@ def highPredsLst(key,results):
         if col != 'alpha':
             if pvals[col] > 0.05:
                 highpvals.append(col)
-                
-                
+    
     return highpvals
 
 def NegativeBinomial(key):
+    global expr
+    global y_train,X_train
+    mod_descript = 'NegativeBinomial'
+    
     # Training a Poisson regression model from the statsmodels GLM class
     poisson_training = sm.GLM(y_train, X_train, family=sm.families.NegativeBinomial(link=sm.families.links.log()))
     results = poisson_training.fit()
     
-    # Print training model
-    print('\n\n')
-    print(results.summary())
     
     # Checking predictions
     poisson_predictions = results.get_prediction(X_test)
     predictions_summary_frame = poisson_predictions.summary_frame()
-    #print(predictions_summary_frame.head(15))
-    
-    
+
     predicted_counts = predictions_summary_frame['mean']
-    visualizeModel(datasets[key], 'Negative Binomial',predicted_counts)
     
-    mod_descript = 'NegativeBinomial'
-    model_dict[key] = [mod_descript, datasets[key]['LATITUDE'][0],
-                       datasets[key]['LONGITUDE'][0], datasets[key]['IFR'].mean(), results,
-                       expr, list(X_test)]
+    highPreds = highPredsLst(key,results)
+    if len(highPreds) == 0 or len(datasets[key].columns.values) == 8:
+        y_pred = results.predict(X_test)
+        rmse = round(math.sqrt(metrics.mean_squared_error(y_test, y_pred)),2)
+        
+        y_test_array = np.array(y_test)
+        y_pred_array = np.array(y_pred)
+        sum_errs = np.sum((y_test_array - y_pred_array)**2)
+        stdev = round(np.sqrt(1 / (len(y_test_array) - 2) * sum_errs),2)
+
+
+        
+        model_dict[key] = [mod_descript, datasets[key]['LATITUDE'][0],
+                           datasets[key]['LONGITUDE'][0], hasIFR(datasets[key]),  poisson_training.fit(),
+                           expr, list(X_test),rmse,stdev]
+        
+        print('{}\n{}: {}'.format(key,'RMSE',rmse))
+        print('{}: {}'.format('STDEV',stdev))
+        print('\n{}'.format(model_dict[key][4].summary()))
+
+        visualizeModel(datasets[key], "Negative Binomial", predicted_counts)
+        
+        
+    if len(highPreds) > 0 and len(datasets[key].columns[7:].values) > 1:
+        datasets[key] = datasets[key].drop([col for col in highPreds],axis=1)
+        expr = getExpr(key)
+        createTrainTest(key,expr)
+        highPreds = []
+        results = ""
+        NegativeBinomial(key)
     
     return results
 
@@ -170,10 +193,6 @@ def generalizePoisson(key):
         gen_poisson_gp1 = sm.GeneralizedPoisson(y_train, X_train, p=2)
     else:
         gen_poisson_gp1 = sm.GeneralizedPoisson(y_train, X_train, p=1)
-    
-    for col in datasets[key].columns[7:]:
-        if len(datasets[key][col].unique()) == 2: 
-            print('{}: {}'.format(col,datasets[key][col].unique()))
             
     results = gen_poisson_gp1.fit(method='newton')
 
@@ -199,14 +218,19 @@ def generalizePoisson(key):
     if len(highPreds) == 0 and pd.isnull(results.llf) == False:
         y_pred = results.predict(X_test)
         rmse = round(math.sqrt(metrics.mean_squared_error(y_test, y_pred)),2)
-        std = round(np.std(y_test),2)
+        
+        y_test_array = np.array(y_test)
+        y_pred_array = np.array(y_pred)
+        sum_errs = np.sum((y_test_array - y_pred_array)**2)
+        stdev = round(np.sqrt(1 / (len(y_test_array) - 2) * sum_errs),2)
+
 
         
         model_dict[key] = [mod_descript, datasets[key]['LATITUDE'][0],
                            datasets[key]['LONGITUDE'][0], hasIFR(datasets[key]), gen_poisson_gp1.fit(method='newton'),
-                           expr, list(X_test),rmse,std]
+                           expr, list(X_test),rmse,stdev]
         print('{}\n{}: {}'.format(key,'RMSE',rmse))
-        print('{}: {}'.format('Standard Deviation',std))
+        print('{}: {}'.format('STDEV',stdev))
         print('\n{}'.format(model_dict[key][4].summary()))
 
         visualizeModel(datasets[key], "Consul's Generalized Poisson", predicted_counts)
@@ -304,13 +328,14 @@ def visualizeModel(df, vis, predicted_counts):
 def runModels():
     dropEmpties()
     for key in datasets:
-        if key in ['AEX','IFP']:
-            continue
         expr = getExpr(key)
         createTrainTest(key,expr)
-        generalizePoisson(key)
+        if key in ['AEX','IFP']:
+            NegativeBinomial(key)
+        else:
+            generalizePoisson(key)
  
-# Run the program
+# Run the program 
 runModels()
 
     #sns.set(rc={"figure.figsize":(10, 5)})
