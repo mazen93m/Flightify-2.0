@@ -60,6 +60,7 @@ def create_dataFrames():
 
 create_dataFrames()
 holidays = read_csv('updated_holidays.csv')
+airportsData  = pd.read_csv('all_airport_data.csv',header=0)
 
 
 def renameDate(data):
@@ -366,6 +367,24 @@ def merge_datasets(data, lst):
         
     return lst
 
+def dd_convert(tude):
+
+    """ Convert Degrees-Minutes-Seconds to Decimal Degrees. """
+
+    multiplier = 1 if tude[-1] in ["N", "E"] else -1
+
+    return multiplier * sum(float(x) / 60 ** n for n, x in enumerate(tude[:-1].split("-")))
+
+ 
+
+airportsData["LATITUDE"] = airportsData["ARP Latitude"].map(dd_convert)
+
+airportsData["LONGITUDE"] = airportsData["ARP Longitude"].map(dd_convert)
+
+airportsData = airportsData.rename(columns={'Loc Id':'LOC'})
+airportsData = airportsData[['LOC','LATITUDE','LONGITUDE']]
+
+
 def setCols(lst):
     # set merged dataset columns an ordered subset list of columns
     for i in range(len(lst)):
@@ -398,9 +417,10 @@ PRCP_SQRT(dfLst)
 to_datetime(dfLst)
 #PROB_PRCP()
 merge_datasets(dfLst, merged_Lst)
-tagHolidaysLst(merged_Lst)
+#tagHolidaysLst(merged_Lst)
 addLocIDLst(airports, merged_Lst)
 #delCol('ELEVATION')
+
 setCols(merged_Lst)
 
 
@@ -534,11 +554,26 @@ def parseDateCols():
             data.loc[i, 'Week_Day'] = data.loc[i, 'Date'].weekday()
         
         data.index = data.Date
-         
-        
+
+# get rid of NOAA lat/longs
+#for key in datasets:
+#    datasets[key].drop(columns=['LATITUDE','LONGITUDE'],axis=1,inplace=True)
+
+# unique locs from datasets
+locs = [datasets[key].LOC[0] for key in datasets]
+
+def FAA_LAT_LONG():
+    # Swap out NOAA lat/long with FAA lat/long
+    for key in locs:
+        for i in range(len(airportsData)):
+            if airportsData.loc[i,'LOC'] == key:
+                datasets[key]['LATITUDE'] = airportsData.loc[i, 'LATITUDE']
+                datasets[key]['LONGITUDE'] = airportsData.loc[i, 'LONGITUDE']
+
+FAA_LAT_LONG()
 #drop_NA_Cols()
 zeroImputer()
-dropHoliday()
+#dropHoliday()
 parseDateCols()
 SNOW_SQRT()
 
