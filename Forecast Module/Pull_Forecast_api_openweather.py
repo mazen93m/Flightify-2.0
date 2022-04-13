@@ -60,6 +60,7 @@ import numpy as np
 import sys
 
 
+
 # =============================================================================
 
 #Open a file to write screen output to text file
@@ -98,7 +99,7 @@ file_to_read.close()
 #Using units=imperial in api call means temp max is F, wind_speed is mph
 #rain and snow are returned as mm no matter what
 
-openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourly,alerts,minutely&appid=e1aba7bcfa12974803adcf2db2260958&units=imperial'
+openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourly,alerts,minutely&appid={APIkey}&units=imperial'
 
 #start a forecast dictionary
 forecast_dict = {}
@@ -112,8 +113,8 @@ unprocessed_airports = []
 
 #Iterate over model_dict or choose an airport to build forecast_dict
 
-#for key in ['FAI']:
-for key in model_dict:
+for key in ['ACY', 'GFK', 'LGA', 'EWR', 'TEB', 'JFK', 'CVG', 'PRC', 'DVT', 'VNY']:
+#for key in model_dict:
     
     print("Running airport " + key)
    
@@ -801,6 +802,29 @@ for key in model_dict:
             #forecast_df['CONF_lower'] = E_low/(1-alpha_disperse_low)
             #forecast_df['CONF_upper'] = E_high/(1-alpha_disperse_high)
             
+            #populate test_root_MSE
+            try:
+                forecast_df['test_root_MSE'] = model_dict[key][7]
+            except:
+                forecast_df['test_root_MSE'] = 'NaN' 
+    
+            
+#***************           
+            #confidence intervals
+            #pull standard deviation of test y from model
+            std = model_dict[key][8][0]
+            
+            #conf_perc = 95 percent
+            z_score = 1.96           
+            interval = z_score * std
+                        
+            #generate prediction interval lower and upper bound
+            
+            lower, upper = y_forecast - interval, y_forecast + interval          
+            forecast_df['CONF_lower'] = lower
+            forecast_df['CONF_upper'] = upper
+#****************            
+            
             
             #pull log likslihood for null model and populate forecast_df
             forecast_df['LL-NULL'] = results.llnull
@@ -883,6 +907,7 @@ LOC_sh = []
 LATITUDE_sh = []
 LONGITUDE_sh = []
 VFR_Var_List = []
+Date_of_Day_0 = []
 
 #begin building lists for shape_dict
 for key in forecast_dict:
@@ -893,25 +918,32 @@ for key in forecast_dict:
      
     LONGITUDE_sh.append(forecast_dict[key][0]["LONGITUDE"][0])
     
+    Date_of_Day_0.append(forecast_dict[key][0]["Date"][0])
+    
 # create shape dictionary of column lists 
-shape_dict = {'LOC': LOC_sh, 'LATITUDE': LATITUDE_sh, 'LONGITUDE': LONGITUDE_sh}
+shape_dict = {'LOC': LOC_sh, 'LATITUDE': LATITUDE_sh, 'LONGITUDE': LONGITUDE_sh,
+              'Date_of_Day_0': Date_of_Day_0}
 
 #add emptyt lists to hold y_forecast VFR predicted values
 for i in range(len(forecast_df)):
-    shape_dict["VFR " + str(forecast_dict[key][0]["Date"][i])] = []
+    #shape_dict["VFR" + str(forecast_dict[key][0]["Date"][i])] = []
+    shape_dict["VFR_Day_" + str(i)] = []
 
 #populate the y_forecast VFR predicted values
 for i in range(len(forecast_df)):
     for key in forecast_dict:
-        shape_dict["VFR " + str(forecast_dict[key][0]["Date"][i])].append(forecast_dict[key][0]["y_forecast"][i])
-    
+        #shape_dict["VFR" + str(forecast_dict[key][0]["Date"][i])].append(forecast_dict[key][0]["y_forecast"][i])
+        shape_dict["VFR_Day_" + str(i)].append(forecast_dict[key][0]["y_forecast"][i])
 
 #create DataFrame from dictionary    
 shape_df = pd.DataFrame(shape_dict)
   
   
 # =============================================================================
-#This code assumes 8 days of forecast
+#This code assumes 8 days of forecast but has a problem since not every airport
+#has same date for day 0, 1, 2, ect. when the forecast is run near midnight.
+#The date column header was taken from the dates that were run from the last
+#airport.  Otherwise it works.
 
 # #start lists to create DataFrame with shape file information
 # LOC_sh = []
@@ -1022,8 +1054,6 @@ f.close()
 
 
 #print(forecast_df.dtypes)    
-
-
 
 
 
