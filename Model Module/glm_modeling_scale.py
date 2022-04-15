@@ -228,7 +228,7 @@ def generalizePoisson(key):
         
         model_dict[key] = [mod_descript, datasets[key]['LATITUDE'][0],
                            datasets[key]['LONGITUDE'][0], hasIFR(datasets[key]), gen_poisson_gp1.fit(method='newton'),
-                           expr, list(X_test),rmse,stdev]
+                           expr, list(X_test),rmse,stdev,gen_poisson_gp1]
         print('{}\n{}: {}'.format(key,'RMSE',rmse))
         print('{}: {}'.format('STDEV',stdev))
         print('\n{}'.format(model_dict[key][4].summary()))
