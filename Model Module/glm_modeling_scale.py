@@ -49,7 +49,7 @@ actual_counts = ""
 lst1 = []
 
 def dropEmptyCols(key):
-    for col in datasets[key].columns[7:]:
+    for col in datasets[key].columns[8:]:
         if max(datasets[key][col]) == 0:
             datasets[key] = datasets[key].drop(col,axis=1)
             
@@ -137,7 +137,7 @@ def NegativeBinomial(key):
         
         model_dict[key] = [mod_descript, datasets[key]['LATITUDE'][0],
                            datasets[key]['LONGITUDE'][0], hasIFR(datasets[key]),  poisson_training.fit(),
-                           expr, list(X_test),rmse,stdev]
+                           expr, list(X_test),rmse,stdev, datasets[key]['Region'][0]] 
         
         print('{}\n{}: {}'.format(key,'RMSE',rmse))
         print('{}: {}'.format('STDEV',stdev))
@@ -146,7 +146,7 @@ def NegativeBinomial(key):
         visualizeModel(datasets[key], "Negative Binomial", predicted_counts)
         
         
-    if len(highPreds) > 0 and len(datasets[key].columns[7:].values) > 1:
+    if len(highPreds) > 0 and len(datasets[key].columns[8:].values) > 1:
         datasets[key] = datasets[key].drop([col for col in highPreds],axis=1)
         expr = getExpr(key)
         createTrainTest(key,expr)
@@ -228,7 +228,8 @@ def generalizePoisson(key):
         
         model_dict[key] = [mod_descript, datasets[key]['LATITUDE'][0],
                            datasets[key]['LONGITUDE'][0], hasIFR(datasets[key]), gen_poisson_gp1.fit(method='newton'),
-                           expr, list(X_test),rmse,stdev,gen_poisson_gp1]
+                           expr, list(X_test),rmse,stdev,gen_poisson_gp1, datasets[key]['Region'][0]]
+        
         print('{}\n{}: {}'.format(key,'RMSE',rmse))
         print('{}: {}'.format('STDEV',stdev))
         print('\n{}'.format(model_dict[key][4].summary()))
@@ -271,7 +272,7 @@ def generalizedPoisson2(key):
     return results
 
 def getExpr(key):
-    dCols = list(datasets[key].columns[7:])
+    dCols = list(datasets[key].columns[8:])
     #print(dCols)
     expr = "VFR ~ "
     
@@ -377,4 +378,3 @@ pickle.dump(model_dict,f)
     
 # close file
 f.close()    
-
