@@ -99,7 +99,7 @@ file_to_read.close()
 #Using units=imperial in api call means temp max is F, wind_speed is mph
 #rain and snow are returned as mm no matter what
 
-openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourly,alerts,minutely&appid={apikey}&units=imperial'
+openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourly,alerts,minutely&appid={APIkey}&units=imperial'
 
 #start a forecast dictionary
 forecast_dict = {}
@@ -551,7 +551,18 @@ for key in model_dict:
     #forecast_df.columns
      
 #--------------------------------------
-
+    
+    #Create Region column in forecast_df
+    
+    REGION = []
+    
+    for i in range(len(forecast_df['Date'])):
+        REGION.append(model_dict[key][-1])
+    
+    forecast_df['REGION'] = REGION
+    
+#--------------------------------------  
+  
     #Create LATITUDE column in forecast_df
     
     LATITUDE = []
@@ -805,6 +816,28 @@ for key in model_dict:
             #forecast_df['CONF_lower'] = E_low/(1-alpha_disperse_low)
             #forecast_df['CONF_upper'] = E_high/(1-alpha_disperse_high)
             
+            
+            #Calculate confidence intervals for predictions
+            #attempt 2
+            
+            #https://www.statsmodels.org/dev/generated/statsmodels.discrete.discrete_model.GeneralizedPoisson.predict.html#statsmodels.discrete.discrete_model.GeneralizedPoisson.predict
+            # GeneralizedPoisson.predict(params, exog=None, exposure=None, offset=None, which='mean', y_values=None)[source]¶
+            
+            #attempt with using the gen_poisson_gp1 object pulled from the
+            #model_dict.  
+            #where gen_poisson_gp1 = sm.GeneralizedPoisson(y_train, X_train, p=1)
+            #from the glm_modeling_scale.py
+            gen_poisson_gp1 = model_dict[key][9]
+            
+            conf_beta_lower = results.conf_int()[0]
+            conf_beta_upper = results.conf_int()[1]
+            
+            CONF_lower = gen_poisson_gp1.predict(conf_beta_lower, x_forecast)
+            CONF_upper = gen_poisson_gp1.predict(conf_beta_upper, x_forecast)
+            
+            forecast_df['CONF_lower'] = CONF_lower
+            forecast_df['CONF_upper'] = CONF_upper
+            
             #populate test_root_MSE
             try:
                 forecast_df['test_root_MSE'] = model_dict[key][7]
@@ -812,20 +845,23 @@ for key in model_dict:
                 forecast_df['test_root_MSE'] = 'NaN' 
     
             
-#***************           
+#*************** 
+            
             #confidence intervals
+            #attempt 3
+            
             #pull standard deviation of test y from model
-            std = model_dict[key][8]
+            #std = model_dict[key][8]
             
             #conf_perc = 95 percent
-            z_score = 1.96           
-            interval = z_score * std
+            #z_score = 1.96           
+            #interval = z_score * std
                         
             #generate prediction interval lower and upper bound
             
-            lower, upper = y_forecast - interval, y_forecast + interval          
-            forecast_df['CONF_lower'] = lower
-            forecast_df['CONF_upper'] = upper
+            #lower, upper = y_forecast - interval, y_forecast + interval          
+            #forecast_df['CONF_lower'] = lower
+            #forecast_df['CONF_upper'] = upper
 #****************            
             
             
