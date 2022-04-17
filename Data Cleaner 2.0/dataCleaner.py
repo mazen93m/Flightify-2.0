@@ -20,6 +20,7 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
 airports = a.airports
+locs = [key for key in airports]
 dataFrameLst = []
 
 #airports = {'BCT': ['bdl_opsnet_tower_ops_2017-2021.csv','bdl_noaa_usw00014740_2017-2021.csv','HARTFORD BRADLEY INTERNATIONAL AIRPORT, CT US']}
@@ -50,7 +51,7 @@ def create_dataFrames():
  
     for i in range(len(airports)):
         nxt = next(iterator)
-        dataFrameLst.append([read_csv('/Users/ajgray/Desktop/project/tower_ops_airports/{}'.format(airports[nxt][0]),6,0),read_csv('/Users/ajgray/Desktop/project/NOAA/{}'.format(airports[nxt][1])), [airports[nxt]]])
+        dataFrameLst.append([read_csv('/Users/ajgray/Desktop/project/tower_ops_airports/{}'.format(airports[nxt][0]),6,0),read_csv('/Users/ajgray/Desktop/project/NOAA/{}'.format(airports[nxt][1])), airports[nxt]])
         if nxt in duplicate_airports:
             dataFrameLst[i][1].NAME = duplicate_airports[nxt]
         if i == len(airports):
@@ -62,6 +63,34 @@ create_dataFrames()
 holidays = read_csv('updated_holidays.csv')
 airportsData  = pd.read_csv('all_airport_data.csv',header=0)
 
+def dd_convert(tude):
+
+    """ Convert Degrees-Minutes-Seconds to Decimal Degrees. """
+
+    multiplier = 1 if tude[-1] in ["N", "E"] else -1
+
+    return multiplier * sum(float(x) / 60 ** n for n, x in enumerate(tude[:-1].split("-")))
+
+ 
+
+airportsData["LATITUDE"] = airportsData["ARP Latitude"].map(dd_convert)
+
+airportsData["LONGITUDE"] = airportsData["ARP Longitude"].map(dd_convert)
+
+airportsData = airportsData.rename(columns={'Loc Id':'LOC'})
+airportsData = airportsData[['LOC','Region','LATITUDE','LONGITUDE']]
+airportsData = airportsData.loc[airportsData['LOC'].isin(locs)]
+airportsData.sort_values('LOC',inplace=True)
+airportsData.reset_index(inplace=True)
+airportsData.drop('index',axis=1,inplace=True)
+
+def coords_regions():
+    for i in range(len(dataFrameLst)):
+        if dataFrameLst[i][2][0][:3].upper() == airportsData.loc[i,'LOC']:
+            dataFrameLst[i][1]['Region'] = airportsData.loc[i,'Region']
+            dataFrameLst[i][1]['LATITUDE'] = airportsData.loc[i,'LATITUDE']
+            dataFrameLst[i][1]['LONGITUDE'] = airportsData.loc[i,'LONGITUDE']
+            
 
 def renameDate(data):
     for el in data:
@@ -84,7 +113,8 @@ def dropLastCol(data):
 def dropLast5Rows(data):
     for el in data:
         el[0] = el[0].iloc[:-5,:]
-    
+
+coords_regions()
 renameDate(dataFrameLst)
 dropLastCol(dataFrameLst)
 dropLast5Rows(dataFrameLst)
@@ -211,7 +241,7 @@ total2 = dataFrameLst[0][0].columns[24:]
 
 
 # merged dataset columns
-column_names = ['Date','LOC','STATION','NAME','LATITUDE','LONGITUDE','IFR Air Carrier','IFR Air Taxi', 'IFR General Aviation',
+column_names = ['Date','LOC','STATION','NAME', 'Region','LATITUDE','LONGITUDE','IFR Air Carrier','IFR Air Taxi', 'IFR General Aviation',
        'IFR Military', 'IFR Total', 'IFR Overflight Air Carrier',
        'IFR Overflight Air Taxi', 'IFR Overflight General Aviation',
        'IFR Overflight Military', 'IFR Overflight Total', 'VFR Air Carrier',
@@ -367,24 +397,25 @@ def merge_datasets(data, lst):
         
     return lst
 
-def dd_convert(tude):
 
-    """ Convert Degrees-Minutes-Seconds to Decimal Degrees. """
+# unique locs from datasets
+#locs = [datasets[key].LOC[0] for key in datasets]
 
-    multiplier = 1 if tude[-1] in ["N", "E"] else -1
-
-    return multiplier * sum(float(x) / 60 ** n for n, x in enumerate(tude[:-1].split("-")))
-
- 
-
-airportsData["LATITUDE"] = airportsData["ARP Latitude"].map(dd_convert)
-
-airportsData["LONGITUDE"] = airportsData["ARP Longitude"].map(dd_convert)
-
-airportsData = airportsData.rename(columns={'Loc Id':'LOC'})
-airportsData = airportsData[['LOC','LATITUDE','LONGITUDE']]
-
-
+def add_Coords_Regions():
+    # Add FAA coordinates and airport regions
+    global airportsData
+    locs = [merged_Lst[i]['LOC'][0] for i in range(len(merged_Lst))]
+    airportsData = airportsData.loc[airportsData['LOC'].isin(locs)]
+    airportsData = airportsData.reset_index()
+    
+    for i in range(len(airportsData)):
+        for x in range(len(merged_Lst)):
+            if merged_Lst[x]['LOC'][0] == airportsData.loc[x, 'LOC']: 
+                merged_Lst[x]['LATITUDE'] = airportsData.loc[x,'LATITUDE']
+                merged_Lst[x]['LATITUDE'] = airportsData[x,'LATITUDE']
+                merged_Lst[x]['Region'] = airportsData[x,'Region']
+                break
+    
 def setCols(lst):
     # set merged dataset columns an ordered subset list of columns
     for i in range(len(lst)):
@@ -419,8 +450,7 @@ to_datetime(dfLst)
 merge_datasets(dfLst, merged_Lst)
 #tagHolidaysLst(merged_Lst)
 addLocIDLst(airports, merged_Lst)
-#delCol('ELEVATION')
-
+#add_Coords_Regions()
 setCols(merged_Lst)
 
 
@@ -429,7 +459,7 @@ def trimDatasets(lst):
     iterator = iter(datasets)
     nxt = next(iterator)
     
-    cols1 = datasets[nxt].columns[:6]
+    cols1 = datasets[nxt].columns[:7]
     cols2 = datasets[nxt].columns[-9:]
 
     
@@ -559,18 +589,8 @@ def parseDateCols():
 #for key in datasets:
 #    datasets[key].drop(columns=['LATITUDE','LONGITUDE'],axis=1,inplace=True)
 
-# unique locs from datasets
-locs = [datasets[key].LOC[0] for key in datasets]
 
-def FAA_LAT_LONG():
-    # Swap out NOAA lat/long with FAA lat/long
-    for key in locs:
-        for i in range(len(airportsData)):
-            if airportsData.loc[i,'LOC'] == key:
-                datasets[key]['LATITUDE'] = airportsData.loc[i, 'LATITUDE']
-                datasets[key]['LONGITUDE'] = airportsData.loc[i, 'LONGITUDE']
-
-FAA_LAT_LONG()
+                
 #drop_NA_Cols()
 zeroImputer()
 #dropHoliday()
