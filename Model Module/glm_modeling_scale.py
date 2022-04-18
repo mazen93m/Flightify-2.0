@@ -328,7 +328,8 @@ def visualizeModel(df, vis, predicted_counts):
     
 def runModels():
     dropEmpties()
-    for key in datasets:
+    #for key in datasets:
+    for key in ['SBD']:
         expr = getExpr(key)
         createTrainTest(key,expr)
         if key in ['AEX','IFP']:
