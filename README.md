@@ -5,7 +5,7 @@ Aircraft using VFR usually are not required to file a flight plan and are not au
 Python environment
 
 Run Data Cleaning Tool
-  Required files in current directory:
+Required files in current directory:
     airports.py
     FAA csv datasets
     NOAA csv datasets
