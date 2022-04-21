@@ -8,29 +8,35 @@ Run Data Cleaning Tool\
   Required files in current directory:\
     airports.py\
     FAA csv datasets\
-    NOAA csv datasets\
+    NOAA csv datasets
     
-Run Model Module
-  Required files in current directory:
-    glm_modeling_scale.py
+Run Model Module\
+  Required files in current directory:\
+    glm_modeling_scale.py\
     datasets.pkl
 
-Run Forecast Module
-  Required files in current directory:
-    Pull_Forecast_api_openweather.py
-      Make sure API code is input on line #
-    model_dict.pkl
+Run Forecast Module\
+  Required files in current directory:\
+    Pull_Forecast_api_openweather.py\
+      Make sure API code is input on line #\
+    model_dict.pkl\
     near_weekend_holiday_dates.csv
     
-Using Tableau Dashboard
-  Required files in current directory:
-    Tableau Dashboard
+Using Tableau Dashboard\
+  Required files in current directory:\
+    Tableau Dashboard\
     combo_forecast.csv
     
-Run Shape File Module:
-  Required files in current directory:
+Run Shape File Module:\
+  Required files in current directory:\
     shape.csv
-    
+
+Instructions for aquiring openweathermap free API key code:\
+
+1) Go to website: https://openweathermap.org/api \
+2) Click Subscribe under One Call API\
+   (API doc shows excellent explanation of all fields in API response)\
+3) Choose "Get API Key" Under Free column for 1000 calls/day and 30,000 calls/month\  
 
 ## Usage
 
@@ -42,8 +48,8 @@ If no change in historic data, begin with the Forecast Module, then proceed to T
 ```
 ## Credits
 George Mason Data Analytics Engineering Program: DAEN 690\
-Team Flightify 2.0: Dr. Charles Howard, Sabitha Pongadan, Alec Gray, Nida Sharief, Mazen Mohamed, Kimberly Cawi, Vasanthi Pulusu, Bharat Kumar Challakonda\
-Team Flightify: Deanna Snellings, Walter Benitez, Brittany Burwell, Jason Chern
+Spring 2022 Team Flightify 2.0: Dr. Charles Howard, Sabitha Pongadan, Alec Gray, Nida Sharief, Mazen Mohamed, Kimberly Cawi, Vasanthi Pulusu, Bharat Kumar Challakonda\
+Summer 2021 Team Flightify: Deanna Snellings, Walter Benitez, Brittany Burwell, Jason Chern
 
 ## License
 
