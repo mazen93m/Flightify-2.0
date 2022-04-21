@@ -5,9 +5,11 @@ Aircraft using VFR usually are not required to file a flight plan and are not au
 Python environment
 
 Run Data Cleaning Tool
-  Required files in current directory
+  Required files in current directory:
+    airports.py
+    FAA csv datasets
+    NOAA csv datasets
     
-
 Run Model Module
   Required files in current directory:
     glm_modeling_scale.py
@@ -22,14 +24,18 @@ Run Forecast Module
     
 Using Tableau Dashboard
   Required files in current directory:
+    Tableau Dashboard
     combo_forecast.csv
     
-Run Shape file Module:
+Run Shape File Module:
   Required files in current directory:
     shape.csv
     
 
 ## Usage
+
+If historic data is updated, then begin with the Data Cleaning Tool and follow the installation order.
+If no change in historic data, begin with the Forecast Module, then proceed to Tableau Dashboard, then Shape File Module.
 
 ```python
 # execution example:
