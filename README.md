@@ -18,7 +18,7 @@ Aircraft using VFR usually are not required to file a flight plan and are not au
 ##### Run Forecast Module
   Required files in current directory:\
     Pull_Forecast_api_openweather.py\
-      Make sure API code is input on line #\
+      Make sure API code is input on line #102\
     model_dict.pkl\
     near_weekend_holiday_dates.csv
     
