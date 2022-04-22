@@ -4,34 +4,34 @@ Aircraft using VFR usually are not required to file a flight plan and are not au
 ## Installation
 #### Python environment
 
-##### Run Data Cleaning Tool\
+##### Run Data Cleaning Tool
   Required files in current directory:\
     airports.py\
     FAA csv datasets\
     NOAA csv datasets
     
-Run Model Module\
+##### Run Model Module
   Required files in current directory:\
     glm_modeling_scale.py\
     datasets.pkl
 
-Run Forecast Module\
+##### Run Forecast Module
   Required files in current directory:\
     Pull_Forecast_api_openweather.py\
       Make sure API code is input on line #\
     model_dict.pkl\
     near_weekend_holiday_dates.csv
     
-Using Tableau Dashboard\
+##### Using Tableau Dashboard
   Required files in current directory:\
     Tableau Dashboard\
     combo_forecast.csv
     
-Run Shape File Module:\
+##### Run Shape File Module:
   Required files in current directory:\
     shape.csv
 
-Instructions for aquiring openweathermap free API key code:\
+#### Instructions for aquiring openweathermap free API key code:
 
 1) Go to website: https://openweathermap.org/api \
 2) Click Subscribe under One Call API\
