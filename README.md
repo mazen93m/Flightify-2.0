@@ -39,12 +39,19 @@ Aircraft using VFR usually are not required to file a flight plan and are not au
 3) Choose "Get API Key" Under Free column for 1000 calls/day and 30,000 calls/month\  
 
 ## Usage
+Before using the system insert your open weather api code in the Pull_Forecast_api_openweather.py script in line 102.  See instructions below.
 
 If historic data is updated, then begin with the Data Cleaning Tool and follow the installation order.\
 If no change in historic data, begin with the Forecast Module, then proceed to Tableau Dashboard, then Shape File Module.
 
 ```python
-# execution example:
+
+#Insert api key in the code line in the script, Pull_Forecast_api_openweather.py line 102
+
+#Important: Insert your API key in place of {api key}, drop braces, no spaces
+
+openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourly,alerts,minutely&appid={api key}&units=imperial'
+
 ```
 ## Credits
 George Mason Data Analytics Engineering Program: DAEN 690\
