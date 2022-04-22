@@ -41,9 +41,6 @@ Aircraft using VFR usually are not required to file a flight plan and are not au
 ## Usage
 Before using the system insert your open weather api code in the Pull_Forecast_api_openweather.py script in line 102.  See instructions below.
 
-If historic data is updated, then begin with the Data Cleaning Tool and follow the installation order.\
-If no change in historic data, begin with the Forecast Module, then proceed to Tableau Dashboard, then Shape File Module.
-
 ```python
 
 #Insert api key in the code line in the script, Pull_Forecast_api_openweather.py line 102
@@ -53,6 +50,11 @@ If no change in historic data, begin with the Forecast Module, then proceed to T
 openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourly,alerts,minutely&appid={api key}&units=imperial'
 
 ```
+
+-If historic data is updated, then begin with the Data Cleaning Tool and follow the installation order.\
+-If no change in historic data, begin with the Forecast Module, then proceed to Tableau Dashboard, then Shape File Module.
+
+
 ## Credits
 George Mason Data Analytics Engineering Program: DAEN 690\
 Spring 2022 Team Flightify 2.0: Dr. Charles Howard, Sabitha Pongadan, Alec Gray, Nida Sharief, Mazen Mohamed, Kimberly Cawi, Vasanthi Pulusu, Bharat Kumar Challakonda\
