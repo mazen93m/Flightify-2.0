@@ -27,7 +27,7 @@ Aircraft using VFR usually are not required to file a flight plan and are not au
     Tableau Dashboard\
     combo_forecast.csv
     
-##### Run Shape File Module:
+##### Run Shape File Module
   Required files in current directory:\
     shape.csv
 
@@ -40,7 +40,7 @@ Aircraft using VFR usually are not required to file a flight plan and are not au
 
 ## Usage
 
-If historic data is updated, then begin with the Data Cleaning Tool and follow the installation order.
+If historic data is updated, then begin with the Data Cleaning Tool and follow the installation order.\
 If no change in historic data, begin with the Forecast Module, then proceed to Tableau Dashboard, then Shape File Module.
 
 ```python
