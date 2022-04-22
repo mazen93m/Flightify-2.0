@@ -29,6 +29,7 @@ Aircraft using VFR usually are not required to file a flight plan and are not au
     
 ##### Run Shape File Module
   Required files in current directory:\
+    shape file module final.py
     shape.csv
 
 #### Instructions for aquiring openweathermap free API key code:
@@ -53,6 +54,10 @@ openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourl
 
 -If historic data is updated, then begin with the Data Cleaning Tool and follow the installation order.\
 -If no change in historic data, begin with the Forecast Module, then proceed to Tableau Dashboard, then Shape File Module.
+
+#### ArcGis Shapefile instructions
+
+
 
 
 ## Credits
