@@ -99,7 +99,7 @@ file_to_read.close()
 #Using units=imperial in api call means temp max is F, wind_speed is mph
 #rain and snow are returned as mm no matter what
 
-openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourly,alerts,minutely&appid={APIkey}&units=imperial'
+openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourly,alerts,minutely&appid={api key}&units=imperial'
 
 #start a forecast dictionary
 forecast_dict = {}
@@ -113,7 +113,8 @@ unprocessed_airports = []
 
 #Iterate over model_dict or choose an airport to build forecast_dict
 
-#for key in ['ACY', 'GFK', 'LGA', 'EWR', 'TEB', 'JFK', 'CVG', 'PRC', 'DVT', 'VNY']:
+
+#for key in ['AEX','ACY', 'GFK', 'LGA', 'EWR', 'TEB', 'JFK', 'CVG', 'PRC', 'DVT', 'VNY']:
 for key in model_dict:
     
     print("Running airport " + key)
@@ -557,7 +558,7 @@ for key in model_dict:
     REGION = []
     
     for i in range(len(forecast_df['Date'])):
-        REGION.append(model_dict[key][-1])
+        REGION.append(model_dict[key][10])
     
     forecast_df['REGION'] = REGION
     
@@ -642,55 +643,57 @@ for key in model_dict:
         
 #--------------------------------------
       
-    #Forecast current plus next 7 days of VFR Traffic
-         
-    #Will need to check which model is used and build x_forecast with appropriate columns
-    
-    #Forecast Prediction code for Model MLR1
-    if model_dict[key][0] == 'MLR1':
-        
-        #Calculate Future VFR flights
-        
-        predictor_names = model_dict[key][6]
-        #predictor_names = ['IFR', 'AWND', 'PRCP_SQRT', 'TMAX', 'isAHOLIDAY', 'SNOW_SQRT']
-        
-        #create x value DataFrame for predictions
-        x_forecast = forecast_df[predictor_names]
-    
-        #x_forecast = x_forecast.to_numpy()
-        
-        #Use model object from model_dict to forecast current plus next 7 days
-        linReg = model_dict[key][4]
-        y_forecast = linReg.predict(x_forecast)
-        
-        forecast_df['y_forecast'] = y_forecast
-        
-        
-        #populate intercept and coefficients columns in forecast_df with model values
-        forecast_df['Intercept_coeff'] = model_dict[key][5][0]
-        for i in range(len(predictor_names)):
-           forecast_df[predictor_names[i] + '_coeff'] = model_dict[key][5][1][i] 
-           
-# 
-#         #populate intercept and coefficient standard error columns in forecast_df with model values   
-#         forecast_df['INTERCEPT_se'] = model_dict[key][9][0]
-#         for i in range(len(predictor_names)):
-#            forecast_df[predictor_names[i] + '_coeff_se'] = model_dict[key][9][1][i] 
-#            
+# =============================================================================
+#     #Forecast current plus next 7 days of VFR Traffic
+#          
+#     #Will need to check which model is used and build x_forecast with appropriate columns
+#     
+#     #Forecast Prediction code for Model MLR1
+#     if model_dict[key][0] == 'MLR1':
 #         
-#         #populate intercept and coefficient p value columns in forecast_df with model values  
-#         forecast_df['INTERCEPT_p'] = model_dict[key][10][0]
+#         #Calculate Future VFR flights
+#         
+#         predictor_names = model_dict[key][6]
+#         #predictor_names = ['IFR', 'AWND', 'PRCP_SQRT', 'TMAX', 'isAHOLIDAY', 'SNOW_SQRT']
+#         
+#         #create x value DataFrame for predictions
+#         x_forecast = forecast_df[predictor_names]
+#     
+#         #x_forecast = x_forecast.to_numpy()
+#         
+#         #Use model object from model_dict to forecast current plus next 7 days
+#         linReg = model_dict[key][4]
+#         y_forecast = linReg.predict(x_forecast)
+#         
+#         forecast_df['y_forecast'] = y_forecast
+#         
+#         
+#         #populate intercept and coefficients columns in forecast_df with model values
+#         forecast_df['Intercept_coeff'] = model_dict[key][5][0]
 #         for i in range(len(predictor_names)):
-#            forecast_df[predictor_names[i] + '_p'] = model_dict[key][10][1][i] 
+#            forecast_df[predictor_names[i] + '_coeff'] = model_dict[key][5][1][i] 
 #            
-# 
-        
-        #populate test_root_MSE from model test data
-        forecast_df['test_root_MSE'] = model_dict[key][7]
-    
-        #populate R2 from model test data
-        forecast_df['R2'] = model_dict[key][8]
-        
+# # 
+# #         #populate intercept and coefficient standard error columns in forecast_df with model values   
+# #         forecast_df['INTERCEPT_se'] = model_dict[key][9][0]
+# #         for i in range(len(predictor_names)):
+# #            forecast_df[predictor_names[i] + '_coeff_se'] = model_dict[key][9][1][i] 
+# #            
+# #         
+# #         #populate intercept and coefficient p value columns in forecast_df with model values  
+# #         forecast_df['INTERCEPT_p'] = model_dict[key][10][0]
+# #         for i in range(len(predictor_names)):
+# #            forecast_df[predictor_names[i] + '_p'] = model_dict[key][10][1][i] 
+# #            
+# # 
+#         
+#         #populate test_root_MSE from model test data
+#         forecast_df['test_root_MSE'] = model_dict[key][7]
+#     
+#         #populate R2 from model test data
+#         forecast_df['R2'] = model_dict[key][8]
+#         
+# =============================================================================
 #=============================================================================
     
     #Forecast Prediction for Model Gamma.  Gamma is the function definition
@@ -754,6 +757,9 @@ for key in model_dict:
                 
                 #calculate the pseudo R-squared since GLM does not and populate forecast_df
                 forecast_df['PSEUDO R-SQU'] = 1-forecast_df['LOG-LIKELIHOOD']/forecast_df['LL-NULL']
+                
+                #pull test root MSE from model_dict
+                forecast_df['test_root_MSE'] = model_dict[key][7]
                 
                 processed_airports.append(key)
                 
@@ -920,7 +926,9 @@ combo_forecast_df.reset_index(inplace=True)
 #give the day_index column correct column name
 combo_forecast_df = combo_forecast_df.rename(columns = {'index':'day_index'})
 
-    
+#round y_forecast, VFR predictions- works on dataframe but won't transfer to csv as integer
+#combo_forecast_df['y_forecast'] = (round(combo_forecast_df['y_forecast'],0)).astype('int')
+  
 #save csv for all combined airport forecast_df's
  
 print("Writing combo_forecast_df.csv to disk")  
