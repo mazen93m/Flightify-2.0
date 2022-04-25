@@ -58,13 +58,13 @@ openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourl
 #### ArcGis Shapefile instructions
 
 
-
+#### Tableau Dashboard Instructions
 
 ## Credits
 George Mason Data Analytics Engineering Program: DAEN 690\
 Spring 2022 Team Flightify 2.0: Dr. Charles Howard, Sabitha Pongadan, Alec Gray, Nida Sharief, Mazen Mohamed, Kimberly Cawi, Vasanthi Pulusu, Bharat Kumar Challakonda\
 Summer 2021 Team Flightify: Deanna Snellings, Walter Benitez, Brittany Burwell, Jason Chern
 
-## License
+
 
 
