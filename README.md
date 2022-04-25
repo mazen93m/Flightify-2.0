@@ -40,6 +40,14 @@ Aircraft using VFR usually are not required to file a flight plan and are not au
 3) Choose "Get API Key" Under Free column for 1000 calls/day and 30,000 calls/month\  
 
 ## Usage
+
+#### Instructions for aquiring openweathermap free API key code:
+
+1) Go to website: https://openweathermap.org/api \
+2) Click Subscribe under One Call API\
+   (API doc shows excellent explanation of all fields in API response)\
+3) Choose "Get API Key" Under Free column for 1000 calls/day and 30,000 calls/month\  
+
 Before using the system insert your open weather api code in the Pull_Forecast_api_openweather.py script in line 102.  See instructions below.
 
 ```python
