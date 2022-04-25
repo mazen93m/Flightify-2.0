@@ -63,10 +63,10 @@ openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourl
 -If historic data is updated, then begin with the Data Cleaning Tool and follow the installation order.\
 -If no change in historic data, begin with the Forecast Module, then proceed to Tableau Dashboard, then Shape File Module.
 
+#### Tableau Dashboard Instructions
+
 #### ArcGis Shapefile instructions
 
-
-#### Tableau Dashboard Instructions
 
 ## Credits
 George Mason Data Analytics Engineering Program: DAEN 690\
