@@ -113,13 +113,13 @@ def NegativeBinomial(key):
     mod_descript = 'NegativeBinomial'
     
     # Training a Poisson regression model from the statsmodels GLM class
-    poisson_training = sm.GLM(y_train, X_train, family=sm.families.NegativeBinomial(link=sm.families.links.log()))
-    results = poisson_training.fit()
+    nb_training = sm.GLM(y_train, X_train, family=sm.families.NegativeBinomial(link=sm.families.links.log()))
+    results = nb_training.fit()
     
     
     # Checking predictions
-    poisson_predictions = results.get_prediction(X_test)
-    predictions_summary_frame = poisson_predictions.summary_frame()
+    nb_predictions = results.get_prediction(X_test)
+    predictions_summary_frame = nb_predictions.summary_frame()
 
     predicted_counts = predictions_summary_frame['mean']
     
@@ -136,8 +136,8 @@ def NegativeBinomial(key):
 
         
         model_dict[key] = [mod_descript, datasets[key]['LATITUDE'][0],
-                           datasets[key]['LONGITUDE'][0], hasIFR(datasets[key]),  poisson_training.fit(),
-                           expr, list(X_test),rmse,stdev, datasets[key]['Region'][0]] 
+                           datasets[key]['LONGITUDE'][0], hasIFR(datasets[key]),  nb_training.fit(),
+                           expr, list(X_test),rmse,stdev, nb_training, datasets[key]['Region'][0]] 
         
         print('{}\n{}: {}'.format(key,'RMSE',rmse))
         print('{}: {}'.format('STDEV',stdev))
@@ -328,11 +328,12 @@ def visualizeModel(df, vis, predicted_counts):
     
 def runModels():
     dropEmpties()
-    #for key in datasets:
-    for key in ['SBD']:
+    for key in datasets:
+        if key in ['SBD','IFP']:
+            continue
         expr = getExpr(key)
         createTrainTest(key,expr)
-        if key in ['AEX','IFP']:
+        if key == 'AEX':
             NegativeBinomial(key)
         else:
             generalizePoisson(key)
@@ -340,34 +341,6 @@ def runModels():
 # Run the program 
 runModels()
 
-    #sns.set(rc={"figure.figsize":(10, 5)})
-# =============================================================================
-#     sns.set_style('white')
-#     sns.jointplot(x=predicted_counts, 
-#               y=actual_counts, 
-#               data=df,
-#               kind="reg",
-#               color='b',
-#               marginal_kws=dict(bins=100, color='r'))
-#     plt.savefig("marginal_plot_different_color_histogram_Seaborn.png", dpi=150)  
-# =============================================================================
-    
-#assignment dictionary holds model and predictor selection decisions for a=each airport
-    
-# =============================================================================
-# assign_dict = dict()
-# assign_dict['ACY'] = [generalizePoisson, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
-# assign_dict['GFK'] = [generalizePoisson, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
-# assign_dict['LGA'] = [generalizePoisson, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
-# assign_dict['EWR'] = [generalizePoisson, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
-# assign_dict['TEB'] = [generalizePoisson,""" VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
-# assign_dict['JFK'] = [generalizedPoisson2,""" VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
-# assign_dict['CVG'] = [generalizedPoisson2, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
-# assign_dict['PRC'] = [NegativeBinomial, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
-# assign_dict['DVT'] = [Gamma, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
-# assign_dict['VNY'] = [Gamma, """ VFR ~ Week_Day + IFR + AWND + PRCP + PRCP_SQRT  + SNOW_SQRT + TMIN + TMAX """]
-# =============================================================================
-        
 
 #Pickle dump to save model_dict to file
         
