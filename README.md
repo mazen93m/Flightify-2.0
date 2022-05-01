@@ -21,6 +21,7 @@ Aircraft using VFR usually are not required to file a flight plan and are not au
       Make sure API code is input on line #102\
     model_dict.pkl\
     near_weekend_holiday_dates.csv
+      has dates through 12/29/23
     
 ##### Using Tableau Dashboard
   Required files in current directory:\
@@ -32,12 +33,6 @@ Aircraft using VFR usually are not required to file a flight plan and are not au
     shape file module final.py\
     shape.csv
 
-#### Instructions for aquiring openweathermap free API key code:
-
-1) Go to website: https://openweathermap.org/api \
-2) Click Subscribe under One Call API\
-   (API doc shows excellent explanation of all fields in API response)\
-3) Choose "Get API Key" Under Free column for 1000 calls/day and 30,000 calls/month\  
 
 ## Usage
 
