@@ -61,17 +61,17 @@ openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourl
 #### Tableau Dashboard Instructions
 
 #### ArcGIS Shapefile instructions
-Open ArcGIS Pro app.\
-Select the Map Template
-Go to View tab -> Catalog Pane, and a catalog pane window pops up
-From there, go to 'Project' tab->Folders. Right click on 'Folders' tab, and select 'Add Folder Connection'
-Add the shape file folder. (Note: Each shape file will be in a folder when it is created)
-The new added folder can be seen under the Folders tab.
-Double click on it, and the necessary file to create a layer in ArcGIS will be shown below the shape file folder.
-Drag that file onto the map
-The shapefile will be plotted on the map
-Additional shape files can be added and opened onto the same map by repeating the steps above.
-Once plotted on the map, changes can be made to the points/circle/geometry by either clicking on them or in the 'Feature Layer' -> 'Appearance' tab.
+Open ArcGIS Pro app\
+Select the Map Template\
+Go to View tab -> Catalog Pane, and a catalog pane window pops up\
+From there, go to 'Project' tab->Folders. Right click on 'Folders' tab, and select 'Add Folder Connection'\
+Add the shape file folder. (Note: Each shape file will be in a folder when it is created)\
+The new added folder can be seen under the Folders tab\
+Double click on it, and the necessary file to create a layer in ArcGIS will be shown below the shape file folder\
+Drag that file onto the map\
+The shapefile will be plotted on the map\
+Additional shape files can be added and opened onto the same map by repeating the steps above\
+Once plotted on the map, changes can be made to the points/circle/geometry by either clicking on them or in the 'Feature Layer' -> 'Appearance' tab\
 
 
 ## Credits
