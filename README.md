@@ -61,7 +61,7 @@ openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourl
 #### Tableau Dashboard Instructions
 
 #### ArcGIS Shapefile instructions
-Open ArcGIS Pro app
+Open ArcGIS Pro app.\
 Select the Map Template
 Go to View tab -> Catalog Pane, and a catalog pane window pops up
 From there, go to 'Project' tab->Folders. Right click on 'Folders' tab, and select 'Add Folder Connection'
