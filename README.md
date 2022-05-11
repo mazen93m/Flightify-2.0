@@ -30,7 +30,8 @@ Aircraft using VFR usually are not required to file a flight plan and are not au
 ##### Using Tableau Dashboard
   Required files in current directory:\
     Tableau Dashboard\
-    combo_forecast.csv
+    combo_forecast.csv\
+    FAA Location Data excel (to collect location data for airports and automate the else/if statement code for Tableau Column calculation.)
     
 ##### Run Shape File Module
   Required files in current directory:\
