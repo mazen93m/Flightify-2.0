@@ -1,14 +1,18 @@
-# Expanding Team Flightify: Predictable VFR Air Traffic Forecasting in All Major Airports in the US
-Aircraft using VFR usually are not required to file a flight plan and are not automatically monitored by air traffic control. More resources are required to manage their flights which can cause a safety risk when airports are caught unprepared by a large influx of VFR traffic. Therefore, Team Flightify 2.0 will expand the work of the Summer 2021 Team Flightify to improve the accuracy of VFR flight predictions in class G airspace, which will enable the FAA to assess risk and allocate proper resources. The partner will be able to integrate the predictions into the ArcGIS (GLARE) platform. 
+# Predictable VFR Air Traffic Forecasting in All Major Airports in the US
+Aircraft using VFR usually are not required to file a flight plan and are not automatically monitored by air traffic control. More resources are required to manage their flights which can cause a safety risk when airports are caught unprepared by a large influx of VFR traffic. Therefore, Team Flightify 2.0 models and forecasts future VFR flight volume in class G airspace, which will enable the FAA to assess risk and allocate proper resources. The partner will be able to integrate the predictions into the ArcGIS (GLARE) platform.
 
 ## Installation
 #### Python environment
 
 ##### Run Data Cleaning Tool
   Required files in current directory:\
-    airports.py\
-    FAA csv datasets\
-    NOAA csv datasets
+  airports.py\
+  dataCleaner.py\
+  NOAA.zip files extracted\
+  Tower_ops_airports.zip files extractedfaa_lat_long.csv\
+  updated_holidays.csv (unused, but available)\
+
+    
     
 ##### Run Model Module
   Required files in current directory:\
@@ -58,7 +62,6 @@ openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourl
 -If historic data is updated, then begin with the Data Cleaning Tool and follow the installation order.\
 -If no change in historic data, begin with the Forecast Module, then proceed to Tableau Dashboard, then Shape File Module.
 
-#### Tableau Dashboard Instructions
 
 #### ArcGIS Shapefile instructions
 Open ArcGIS Pro app\
