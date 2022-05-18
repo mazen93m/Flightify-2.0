@@ -45,9 +45,9 @@ Aircraft using VFR usually are not required to file a flight plan and are not au
 #### Instructions for aquiring openweathermap free API key code:
 
 1) Go to website: https://openweathermap.org/api \
-2) Click Subscribe under One Call API\
+2) Click Subscribe under One Call API 3.0\
    (API doc shows excellent explanation of all fields in API response)\
-3) Choose "Get API Key" Under Free column for 1000 calls/day and 30,000 calls/month\  
+
 
 Before using the system insert your open weather api code in the Pull_Forecast_api_openweather.py script in line 102.  See instructions below.
 
@@ -57,7 +57,7 @@ Before using the system insert your open weather api code in the Pull_Forecast_a
 
 #Important: Insert your API key in place of {api key}, drop braces, no spaces
 
-openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourly,alerts,minutely&appid={api key}&units=imperial'
+openweather_api = 'https://api.openweathermap.org/data/3.0/onecall?exclude=hourly,alerts,minutely&appid={api key}&units=imperial'
 
 ```
 
