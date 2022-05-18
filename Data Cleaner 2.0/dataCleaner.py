@@ -4,7 +4,7 @@
 Created on Thu Mar  3 15:46:44 2022
 
 @author: ajgray
-"""
+""" 
 
 import pandas as pd
 import numpy as np
@@ -12,7 +12,7 @@ import airports as a
 import os
 import pickle
 
-
+# Set appropriate file path for main directory 
 os.chdir('/Users/ajgray/Desktop/project')
 
 # Setting any output to display all columns and rows 
@@ -23,8 +23,6 @@ airports = a.airports
 locs = [key for key in airports]
 dataFrameLst = []
 
-#airports = {'BCT': ['bdl_opsnet_tower_ops_2017-2021.csv','bdl_noaa_usw00014740_2017-2021.csv','HARTFORD BRADLEY INTERNATIONAL AIRPORT, CT US']}
-#airports = {'ANC': ['anc_opsnet_tower_ops_2017-2021.csv','anc_noaa_usw00026451_2017-2021.csv','anchorage ted stevens international airport, ak us']}
 
 duplicate_airports = a.duplicate_airports
 
@@ -51,7 +49,7 @@ def create_dataFrames():
  
     for i in range(len(airports)):
         nxt = next(iterator)
-        dataFrameLst.append([read_csv('/Users/ajgray/Desktop/project/tower_ops_airports/{}'.format(airports[nxt][0]),6,0),read_csv('/Users/ajgray/Desktop/project/NOAA/{}'.format(airports[nxt][1])), airports[nxt]])
+        dataFrameLst.append([read_csv('{}/{}'.format(a.tower_ops_path,airports[nxt][0]),6,0),read_csv('{}/{}'.format(a.noaa_path,airports[nxt][1])), airports[nxt]])
         if nxt in duplicate_airports:
             dataFrameLst[i][1].NAME = duplicate_airports[nxt]
         if i == len(airports):
@@ -93,6 +91,7 @@ def coords_regions():
             
 
 def renameDate(data):
+    ''' Function renames DATE column to Date for all datasets ''' 
     for el in data:
         el[1] = el[1].rename(columns={'DATE':'Date'})
 
@@ -584,10 +583,6 @@ def parseDateCols():
             data.loc[i, 'Week_Day'] = data.loc[i, 'Date'].weekday()
         
         data.index = data.Date
-
-# get rid of NOAA lat/longs
-#for key in datasets:
-#    datasets[key].drop(columns=['LATITUDE','LONGITUDE'],axis=1,inplace=True)
 
 
                 
