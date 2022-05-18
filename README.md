@@ -61,6 +61,10 @@ openweather_api = 'https://api.openweathermap.org/data/3.0/onecall?exclude=hourl
 
 ```
 
+Email for OpenWeather API:  info@openweathmap.org
+They are very responsive to questions
+
+
 -If historic data is updated, then begin with the Data Cleaning Tool and follow the installation order.\
 -If no change in historic data, begin with the Forecast Module, then proceed to Tableau Dashboard, then Shape File Module.
 
