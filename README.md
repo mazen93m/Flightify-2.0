@@ -23,8 +23,11 @@ Aircraft using VFR usually are not required to file a flight plan and are not au
 ##### Run Forecast Module
   Required files in current directory:\
     Pull_Forecast_api_openweather.py\
-      Make sure API code is input on line #102\
-      Execution output writes to a text file, so do not be alarmed when you see nothing happening on screen while it runs 5-7 minutes.
+      -Make sure API code is input on line #102\
+      -Execution output writes to a text file, so do not be alarmed when you see nothing happening on screen while it runs 5-7 minutes.\
+      -If you want to run just a few airports # comment out the line:
+      and uncomment line where the list of desired airports is.
+      
     model_dict.pkl\
     near_weekend_holiday_dates.csv
       has dates through 12/29/23
@@ -65,6 +68,7 @@ openweather_api = 'https://api.openweathermap.org/data/3.0/onecall?exclude=hourl
 Email for OpenWeather API:  info@openweathmap.org
 They are very responsive to questions
 
+#### General Instructions
 
 -If historic data is updated, then begin with the Data Cleaning Tool and follow the installation order.\
 -If no change in historic data, begin with the Forecast Module, then proceed to Tableau Dashboard, then Shape File Module.
