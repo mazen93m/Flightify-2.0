@@ -1,4 +1,4 @@
-Research_Data_Sources_5_17_22_(Kim).docx is contains the NOAA, Tower OPS, OpenWeather API instructions using updated instructions for obtaining an API key code from OpenWeather API.  The product that produces the same output corresponding to the code is now called One Call Api 3.0 and should be the one users subscribe.
+Research_Data_Sources_5_17_22_(Kim).docx contains the NOAA, Tower OPS, and OpenWeather API instructions using updated instructions for obtaining an API key code from OpenWeather API.  The product that produces the same output corresponding to the code is now called One Call Api 3.0 and should be the one users subscribe to.
 
 Research_Data_Sources_final_used_(Kim).docx contains the NOAA, Tower OPS, OpenWeather API instructions used for the project.
 
