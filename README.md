@@ -50,7 +50,7 @@ Aircraft using VFR usually are not required to file a flight plan and are not au
 
 ## Usage
 
-#### Instructions for aquiring openweathermap free API key code:
+#### Instructions for aquiring openweathermap API key code:
 
 1) Go to website: https://openweathermap.org/api 
 2) Click Subscribe under One Call API 3.0\
