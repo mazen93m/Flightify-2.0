@@ -24,6 +24,7 @@ Aircraft using VFR usually are not required to file a flight plan and are not au
   Required files in current directory:\
     Pull_Forecast_api_openweather.py\
       Make sure API code is input on line #102\
+      Execution output writes to a text file, so do not be alarmed when you see nothing happening on screen while it runs 5-7 minutes.
     model_dict.pkl\
     near_weekend_holiday_dates.csv
       has dates through 12/29/23
