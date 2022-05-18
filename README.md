@@ -67,11 +67,11 @@ openweather_api = 'https://api.openweathermap.org/data/3.0/onecall?exclude=hourl
 Email for OpenWeather API:  info@openweathmap.org
 They are very responsive to questions
 
-Pull_Forecast_api_openweather.py
-      -Make sure API code is input on line #102
-      -Execution output writes to a text file, so do not be alarmed when you see nothing happening on screen while it runs 5-7 minutes.
-      -If you want to run just a few airports # comment out the line 124: #for key in model_dict:
-      and uncomment line 123 where the list of desired airports are:
+Pull_Forecast_api_openweather.py\
+      -Make sure API code is input on line #102\
+      -Execution output writes to a text file, so do not be alarmed when you see nothing happening on screen while it runs 5-7 minutes.\
+      -If you want to run just a few airports # comment out the line 124: #for key in model_dict:\
+      and uncomment line 123 where the list of desired airports are:\
       for key in ['AEX', 'ACY', 'GFK', 'LGA', 'EWR', 'TEB', 'JFK', 'CVG', 'PRC', 'DVT', 'VNY']:
       
 
