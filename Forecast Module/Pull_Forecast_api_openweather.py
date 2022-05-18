@@ -93,13 +93,19 @@ file_to_read.close()
 # =============================================================================
 
 
-
 #assign API call before adding lat lon
 #Important: Insert your API key in place of {api key}, drop braces, no spaces
 #Using units=imperial in api call means temp max is F, wind_speed is mph
 #rain and snow are returned as mm no matter what
 
-openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourly,alerts,minutely&appid={api key}&units=imperial'
+#Using One Call API 3.0
+openweather_api = 'https://api.openweathermap.org/data/3.0/onecall?exclude=hourly,alerts,minutely&appid={API key}&units=imperial'
+
+
+#Original One Call API  code  Kim subscribed to.
+#openweather_api = 'https://api.openweathermap.org/data/2.5/onecall?exclude=hourly,alerts,minutely&appid={API key}&units=imperial'
+
+
 
 #start a forecast dictionary
 forecast_dict = {}
