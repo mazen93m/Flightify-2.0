@@ -28,8 +28,7 @@ Aircraft using VFR usually are not required to file a flight plan and are not au
       -If you want to run just a few airports # comment out the line 124:  #for key in model_dict:\
       and uncomment line where the list of desired airports is.\
       for key in ['AEX','ACY', 'GFK', 'LGA', 'EWR', 'TEB', 'JFK', 'CVG', 'PRC', 'DVT', 'VNY']:
-
-      
+   
     model_dict.pkl\
     
     near_weekend_holiday_dates.csv\
