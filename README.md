@@ -25,9 +25,10 @@ Aircraft using VFR usually are not required to file a flight plan and are not au
     Pull_Forecast_api_openweather.py\
       -Make sure API code is input on line #102\
       -Execution output writes to a text file, so do not be alarmed when you see nothing happening on screen while it runs 5-7 minutes.\
-      -If you want to run just a few airports # comment out the line 124:  #for key in model_dict:\
+      -If you want to run just a few airports # comment out the line 124: #for key in model_dict:\
+     
       and uncomment line where the list of desired airports is.\
-      for key in ['AEX','ACY', 'GFK', 'LGA', 'EWR', 'TEB', 'JFK', 'CVG', 'PRC', 'DVT', 'VNY']:
+      for key in ['AEX','ACY','GFK',"LGA','EWR','TEB','JFK','CVG','PRC','DVT','VNY']:
    
     model_dict.pkl\
     
